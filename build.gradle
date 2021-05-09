@@ -1,0 +1,48 @@
+plugins {
+    id 'org.springframework.boot' version '2.4.2'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+group = 'co.edu.unicartagena'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    swagger_version = "2.9.2"
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.liquibase:liquibase-core'
+
+    runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'org.springframework.boot:spring-boot-devtools'
+
+    compile([group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.4'])
+    compileOnly 'org.projectlombok:lombok:1.18.10'
+    annotationProcessor 'org.projectlombok:lombok:1.18.10'
+
+    implementation "io.springfox:springfox-swagger2:$swagger_version"
+    implementation "io.springfox:springfox-swagger-ui:$swagger_version"
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+}
+
+test {
+    useJUnitPlatform()
+}

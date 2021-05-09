@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- IntelliJ user, if you see an "Element entity-mappings must be declared", it is a known bug: https://youtrack.jetbrains.com/issue/IDEA-121059 -->
+
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd"
+                 version="2.1">
+    <package>co.edu.unicartagena.actividades.domain</package>
+
+    <entity class="co.edu.unicartagena.actividades.domain.entities.BienPrivado">
+        <table name="bienprivado"/>
+
+        <attributes>
+            <id name="id">
+                <column name="idbienprivado"/>
+            </id>
+
+            <basic name="idPropiedad">
+                <column name="propiedadhorizontal_idph"/>
+            </basic>
+
+            <basic name="coeficienteCopropiedad">
+                <column name="coeficientecopropiedad"/>
+            </basic>
+
+            <basic name="matriculaInmobiliaria">
+                <column name="matriculainmobiliaria"/>
+            </basic>
+
+            <basic name="referenciaCatastral">
+                <column name="referenciacatastral"/>
+            </basic>
+
+        </attributes>
+    </entity>
+</entity-mappings>

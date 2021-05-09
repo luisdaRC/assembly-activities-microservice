@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- IntelliJ user, if you see an "Element entity-mappings must be declared", it is a known bug: https://youtrack.jetbrains.com/issue/IDEA-121059 -->
+
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd"
+                 version="2.1">
+    <package>co.edu.unicartagena.actividades.domain</package>
+
+    <entity class="co.edu.unicartagena.actividades.domain.entities.PropiedadHorizontal">
+        <table name="propiedadhorizontal"/>
+
+        <attributes>
+            <id name="id">
+                <column name="idpropiedadhorizontal"/>
+            </id>
+
+            <basic name="nombre">
+                <column name="nombre"/>
+            </basic>
+
+            <basic name="tipo">
+                <column name="tipo"/>
+            </basic>
+
+            <basic name="direccion">
+                <column name="direccion"/>
+            </basic>
+
+
+
+        </attributes>
+    </entity>
+</entity-mappings>

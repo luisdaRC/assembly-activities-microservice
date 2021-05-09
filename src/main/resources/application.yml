@@ -1,0 +1,22 @@
+server:
+  port: ${PORT:8085}
+
+spring:
+  datasource:
+    url: jdbc:postgresql://ec2-3-211-245-154.compute-1.amazonaws.com:5432/d3ahpnngnva6nt
+    username: lchmxqeqdhsizs
+    password: 6646106f84edeebed948083f50acff00e8b65415b1c17599517264aedf9f3397
+  #    url: jdbc:postgresql://localhost:5432/DB_PH_VOTACION
+  #    username: postgres
+  #    password: admin
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    mapping-resources:
+      - db/mappings/persona.xml
+      - db/mappings/propiedadhorizontal.xml
+      - db/mappings/asistente.xml
+      - db/mappings/bienprivado.xml
+      - db/mappings/asamblea.xml
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
