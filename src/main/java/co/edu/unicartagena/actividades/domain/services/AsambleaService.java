@@ -67,5 +67,19 @@ public class AsambleaService {
         return toReturn;
     }
 
+    public String registerProposicion(Integer idPropiedad, String titulo, List<String> proposiciones){
+
+        Integer idSecretario = phRepository.findIdSecretario(idPropiedad).get();
+        Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
+
+// 1. Okay, ya tengo el idAsamblea, ahora consultar si hay una moción con estado true en esa asamblea para poder insertar sin problema
+// 2. Insertar en tabla mocion con el título y un estado true. Ver documento de interaces para saber cuando se debe terminar una votación y poder insertar otra proposición
+// 3. Consultar el id de esa moción recién insertada con el id asamblea y el estado true para insertar las proposiciones en si (la lista)
+// 4. Insertar cada una de las descripciones de las proposiciones con el idMocion en tabla opcion
+// 5. Listo.
+
+        return "";
+    }
+
 
 }

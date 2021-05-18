@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- IntelliJ user, if you see an "Element entity-mappings must be declared", it is a known bug: https://youtrack.jetbrains.com/issue/IDEA-121059 -->
+
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd"
+                 version="2.1">
+    <package>co.edu.unicartagena.actividades.domain</package>
+
+    <entity class="co.edu.unicartagena.actividades.domain.entities.Mocion">
+        <table name="mocion"/>
+
+        <attributes>
+            <id name="idMocion">
+                <column name="idmocion"/>
+            </id>
+
+            <basic name="idAsamblea">
+                <column name="asamblea_idasamblea"/>
+            </basic>
+
+            <basic name="descripcionMocion">
+                <column name="descripcionmocion"/>
+            </basic>
+
+            <basic name="estado">
+                <column name="estado"/>
+            </basic>
+
+        </attributes>
+    </entity>
+</entity-mappings>

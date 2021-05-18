@@ -18,5 +18,7 @@ spring:
       - db/mappings/asistente.xml
       - db/mappings/bienprivado.xml
       - db/mappings/asamblea.xml
+      - db/mappings/mocion.xml
+      - db/mappings/opcion.xml
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
