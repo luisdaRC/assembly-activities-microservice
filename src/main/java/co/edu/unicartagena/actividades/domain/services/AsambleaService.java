@@ -72,14 +72,34 @@ public class AsambleaService {
         Integer idSecretario = phRepository.findIdSecretario(idPropiedad).get();
         Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
 
-// 1. Okay, ya tengo el idAsamblea, ahora consultar si hay una moción con estado true en esa asamblea para poder insertar sin problema
-// 2. Insertar en tabla mocion con el título y un estado true. Ver documento de interaces para saber cuando se debe terminar una votación y poder insertar otra proposición
-// 3. Consultar el id de esa moción recién insertada con el id asamblea y el estado true para insertar las proposiciones en si (la lista)
-// 4. Insertar cada una de las descripciones de las proposiciones con el idMocion en tabla opcion
-// 5. Listo.
+        if(phRepository.mocionActiva(idAsamblea).isPresent())
+            throw new BusinessException("Hay una moción activa en este momento en la asamblea.");
 
-        return "";
+        // Agregar estado en el front, como cuando se quiere registrar secretario/revisor en administrador
+
+        phRepository.saveMocion(titulo, idAsamblea, true);
+        Integer idMocion = phRepository.mocionActiva(idAsamblea).get();
+
+        for(String prop: proposiciones)
+            phRepository.saveOpciones(idMocion, prop);
+
+        return "La proposición ha sido guardada correctamente.";
     }
 
+    public Boolean getExisteMocion(Integer idPropiedad){
+
+        Integer idSecretario = phRepository.findIdSecretario(idPropiedad).get();
+        Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
+        return phRepository.mocionActiva(idAsamblea).isPresent();
+    }
+
+    public Integer detenerVotacion(Integer idPropiedad){
+
+        Integer idSecretario = phRepository.findIdSecretario(idPropiedad).get();
+        Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
+        Integer idMocion = phRepository.mocionActiva(idAsamblea).get();
+
+        return phRepository.changeStatus(idMocion, false);
+    }
 
 }

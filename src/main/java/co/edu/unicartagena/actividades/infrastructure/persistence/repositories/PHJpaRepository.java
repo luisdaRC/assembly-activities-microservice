@@ -48,4 +48,20 @@ public interface PHJpaRepository extends JpaRepository<PropiedadHorizontal,Integ
     @Query(value = "SELECT count(*) FROM bienprivado WHERE propiedadhorizontal_idph = :idPropiedad", nativeQuery = true)
     Integer findTotalPropietarios(@Param("idPropiedad") Integer idPropiedad);
 
+    @Query(value = "SELECT idmocion FROM mocion WHERE asamblea_idasamblea = :idAsamblea AND estado = true", nativeQuery = true)
+    Optional<Integer> mocionActiva(@Param("idAsamblea") Integer idAsamblea);
+
+    @Modifying
+    @Query(value = "INSERT INTO mocion VALUES (DEFAULT, :idAsamblea, :titulo, :estado)", nativeQuery = true)
+    @Transactional
+    Optional<Integer> saveMocion(@Param("titulo") String titulo, @Param("idAsamblea") Integer idAsamblea, @Param("estado") Boolean estado);
+
+    @Modifying
+    @Query(value = "INSERT INTO opcion VALUES (DEFAULT, :idMocion, :prop)", nativeQuery = true)
+    @Transactional
+    Optional<Integer> saveOpciones(@Param("idMocion") Integer idMocion, @Param("prop") String prop);
+
+    @Modifying
+    @Query(value = "UPDATE mocion SET estado = :estado WHERE idmocion = :idMocion", nativeQuery = true)
+    Integer changeStatus(@Param("idMocion") Integer idMocion, @Param("estado") Boolean estado);
 }

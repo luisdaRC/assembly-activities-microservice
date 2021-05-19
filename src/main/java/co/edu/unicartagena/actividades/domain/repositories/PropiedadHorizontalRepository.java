@@ -17,5 +17,9 @@ public interface PropiedadHorizontalRepository {
     Optional<Integer> saveAsistente(Integer idAsamblea, Integer idPersona, String rol, LocalDateTime horaLlegada, LocalDateTime horaSalida);
     Float findTotalCoeficiente(Integer idPropiedad);
     Integer findTotalPropietarios(Integer idPropiedad);
+    Optional<Integer> mocionActiva(Integer idAsamblea);
+    Optional<Integer> saveMocion(String titulo, Integer idAsamblea, Boolean estado);
+    Optional<Integer> saveOpciones(Integer idMocion, String prop);
+    Integer changeStatus(Integer idMocion, Boolean estado);
 
 }
