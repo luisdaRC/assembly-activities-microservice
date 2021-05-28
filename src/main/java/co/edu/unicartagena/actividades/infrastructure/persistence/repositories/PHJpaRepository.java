@@ -64,4 +64,14 @@ public interface PHJpaRepository extends JpaRepository<PropiedadHorizontal,Integ
     @Modifying
     @Query(value = "UPDATE mocion SET estado = :estado WHERE idmocion = :idMocion", nativeQuery = true)
     Integer changeStatus(@Param("idMocion") Integer idMocion, @Param("estado") Boolean estado);
+
+    @Query(value = "SELECT asamblea_idasamblea FROM asistente WHERE persona_idpersona = :idPersona " +
+            "AND horallegada = horasalida", nativeQuery = true)
+    Optional<Integer> findIdAsambleaByIdPersona(@Param("idPersona") Integer idPersona);
+
+    @Query(value = "SELECT descripcionmocion FROM mocion WHERE idmocion = :idMocion", nativeQuery = true)
+    String findDescripcion(@Param("idMocion") Integer idMocion);
+
+    @Query(value = "SELECT descripcion FROM opcion WHERE mocion_idmocion = :idMocion", nativeQuery = true)
+    Optional<List<String>> findAllOpciones(@Param("idMocion") Integer idMocion);
 }

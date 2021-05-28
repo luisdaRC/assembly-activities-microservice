@@ -1,10 +1,6 @@
 package co.edu.unicartagena.actividades.infrastructure.controllers;
 
-import co.edu.unicartagena.actividades.application.commands.asamblea.RegistrarProposicionCommand;
-import co.edu.unicartagena.actividades.application.commands.asamblea.TerminarAsambleaCommand;
-import co.edu.unicartagena.actividades.application.commands.asamblea.DetenerVotacionCommand;
-import co.edu.unicartagena.actividades.application.commands.asamblea.ExisteMocionCommand;
-import co.edu.unicartagena.actividades.application.commands.asamblea.GetQuorumCommand;
+import co.edu.unicartagena.actividades.application.commands.asamblea.*;
 import co.edu.unicartagena.actividades.application.dtos.AsistenteDTO;
 import co.edu.unicartagena.actividades.application.dtos.PropositionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -24,18 +21,21 @@ public class AsambleaController {
     GetQuorumCommand getQuorumCommand;
     ExisteMocionCommand existeMocionCommand;
     DetenerVotacionCommand detenerVotacionCommand;
+    GetMocionPropietarioCommand getMocionPropietarioCommand;
 
     @Autowired
     AsambleaController(TerminarAsambleaCommand terminarAsambleaCommand,
                        GetQuorumCommand getQuorumCommand,
                        RegistrarProposicionCommand registrarProposicionCommand,
                        ExisteMocionCommand existeMocionCommand,
-                       DetenerVotacionCommand detenerVotacionCommand){
+                       DetenerVotacionCommand detenerVotacionCommand,
+                       GetMocionPropietarioCommand getMocionPropietarioCommand){
         this.terminarAsambleaCommand = terminarAsambleaCommand;
         this.getQuorumCommand = getQuorumCommand;
         this.registrarProposicionCommand = registrarProposicionCommand;
         this.existeMocionCommand = existeMocionCommand;
         this.detenerVotacionCommand = detenerVotacionCommand;
+        this.getMocionPropietarioCommand = getMocionPropietarioCommand;
     }
 
     @GetMapping(value="terminar", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -97,6 +97,20 @@ public class AsambleaController {
             return ResponseEntity.ok().body(model);
         }catch(Exception e){
             return ResponseEntity.ok().body("Ha ocurrido un error al obtener el quorum. "+e.getMessage());
+        }
+    }
+
+    @GetMapping(value="mocionPropietario", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> getMocionPropietario(
+            @RequestParam(name = "idPersona") String idPersona){
+
+        try {
+             Map<Object, Object> model = new HashMap<>();
+             model = getMocionPropietarioCommand.ejecutar(idPersona);
+             System.out.println(model);
+             return ResponseEntity.ok().body(model);
+        }catch(Exception e){
+            return ResponseEntity.ok().body("Ha ocurrido un error al obtener mociones. "+e.getMessage());
         }
     }
 

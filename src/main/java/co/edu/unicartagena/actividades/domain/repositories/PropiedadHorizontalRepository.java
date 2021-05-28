@@ -21,5 +21,8 @@ public interface PropiedadHorizontalRepository {
     Optional<Integer> saveMocion(String titulo, Integer idAsamblea, Boolean estado);
     Optional<Integer> saveOpciones(Integer idMocion, String prop);
     Integer changeStatus(Integer idMocion, Boolean estado);
+    Optional<Integer> findIdAsambleaByIdPersona(Integer idPersona);
+    String findDescripcion(Integer idMocion);
+    Optional<List<String>> findAllOpciones(Integer idMocion);
 
 }

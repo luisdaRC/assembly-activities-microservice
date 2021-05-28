@@ -7,9 +7,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional
@@ -100,6 +98,31 @@ public class AsambleaService {
         Integer idMocion = phRepository.mocionActiva(idAsamblea).get();
 
         return phRepository.changeStatus(idMocion, false);
+    }
+
+    public Map<Object, Object> getMocionPropietario(Integer idPersona){
+        Optional<Integer> idAsamblea = phRepository.findIdAsambleaByIdPersona(idPersona);
+        Map<Object, Object> model = new HashMap<>();
+
+        if(idAsamblea.isPresent()) {
+            Optional<Integer> idMocion = phRepository.mocionActiva(idAsamblea.get());
+            if(!idMocion.isPresent()){
+                model.put("mocionActiva", false);
+                model.put("estado","No hay moción activa actualmente en la asamblea.");
+                return model;
+            }
+            model.put("mocionActiva", true);
+            String titulo = phRepository.findDescripcion(idMocion.get());
+            model.put("titulo", titulo);
+            Optional<List<String>> opciones = phRepository.findAllOpciones(idMocion.get());
+            model.put("opciones", opciones.get());
+
+        }else{
+            model.put("mocionActiva", false);
+            model.put("estado", "El propietario ha abandonado la asamblea.");
+        }
+
+        return model;
     }
 
 }
