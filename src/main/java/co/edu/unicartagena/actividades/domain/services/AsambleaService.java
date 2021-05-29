@@ -121,8 +121,26 @@ public class AsambleaService {
             model.put("mocionActiva", false);
             model.put("estado", "El propietario ha abandonado la asamblea.");
         }
-
         return model;
+    }
+
+    public Integer registerVote(Integer idPersona, String eleccion){
+    //Entero para retornar distintos estados (propietario moroso, error con la bd, voto exitoso)
+        /**
+         * Para registrar un voto necesito el idPH (solo superadmin en localstorage)para saber qué restricciones de voto tiene la PH
+         * (de admin, consejo de admin, proposiciones en gral. etc) - Esto varía según el reglamento de la propiedad.
+         * Entonces, como primer paso necesito crear tabla restricciones con campos: 1.ID 2.idPh 3.Restricción
+         * Luego, consultar si hay campos de restricción con ese idPH. Si no tiene, se registra el voto sin verificar restricción en moción
+         * Sino, verificar si el tipo de moción de la moción actual (estado true) es el de la restricción.
+         * -Si si, y el propietario es moroso, retornar que el propietario es moro y por lo tanto no puede realizar ese voto.
+         * -Si no es el de la restricción, el propietario puede votar normal y se registra su voto consultando la lista de las opciones
+         * con el idMocion (hacer select con list a los 3 campos de esas opciones, el objeto como tal), luego se compara la descripción
+         * de cada uno de las opciones con la eleccion del parámetro de esta función xD.
+         * Se toma el id de esa opción y se inserta en la tabla voto junto al idPersona del parámetro y al idMocion anteriormente consultado.
+         * Listo.
+         */
+
+        return 0;
     }
 
 }
