@@ -23,6 +23,10 @@ public interface PersonaJpaRepository extends JpaRepository<Persona,Integer>, Pe
     List<Persona> findByIdPropiedadAndRol(@Param("idPropiedad") Integer idPropiedad,
                                           @Param("rol") String rol);
 
+    @Query(value = "SELECT propiedadhorizontal_idph FROM bienprivado WHERE idbienprivado = " +
+            "(SELECT bienprivado_idbienprivado FROM persona WHERE idpersona = :idPersona)", nativeQuery = true)
+    Integer findIdPropiedadByIdPersona(@Param("idPersona") Integer idPersona);
+
     @Query(value = "SELECT persona_idpersona from asistente where horallegada = horasalida AND " +
             "rol='PROPIETARIO' AND asamblea_idasamblea = :idAsamblea", nativeQuery = true)
     Optional<List<Integer>> findAsistenteByIdAsamblea(@Param("idAsamblea") Integer idAsamblea);
@@ -45,4 +49,7 @@ public interface PersonaJpaRepository extends JpaRepository<Persona,Integer>, Pe
     @Query(value = "SELECT coeficientecopropiedad FROM bienprivado WHERE idbienprivado = " +
             "(SELECT bienprivado_idbienprivado FROM persona WHERE idpersona = :idPersona)", nativeQuery = true)
     Float findCoeficienteByIdBienPrivado(@Param("idPersona") Integer idPersona);
+
+    @Query(value = "INSERT INTO voto VALUES (DEFAULT, :idMocion, :idOpcion, :idPersona)", nativeQuery = true)
+    Integer doVote(@Param("idMocion") Integer idMocion, @Param("idOpcion") Integer idOpcion, @Param("idPersona") Integer idPersona);
 }

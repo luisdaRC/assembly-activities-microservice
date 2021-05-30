@@ -1,6 +1,7 @@
 package co.edu.unicartagena.actividades.domain.repositories;
 
 import co.edu.unicartagena.actividades.domain.entities.Persona;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,4 +15,6 @@ public interface PersonaRepository {
     Persona findPersonaById(Integer idPersona);
     Integer registrarAbandono(Integer idPersona, Integer idAsamblea, LocalDateTime horaSalida);
     Float findCoeficienteByIdBienPrivado(Integer idPersona);
+    Integer findIdPropiedadByIdPersona(Integer idPersona);
+    Integer doVote(Integer idMocion, Integer idOpcion, Integer idPersona);
 }

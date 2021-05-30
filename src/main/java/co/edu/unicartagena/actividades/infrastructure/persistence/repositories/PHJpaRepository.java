@@ -1,6 +1,7 @@
 package co.edu.unicartagena.actividades.infrastructure.persistence.repositories;
 
 import co.edu.unicartagena.actividades.domain.entities.Asistente;
+import co.edu.unicartagena.actividades.domain.entities.Opcion;
 import co.edu.unicartagena.actividades.domain.entities.PropiedadHorizontal;
 import co.edu.unicartagena.actividades.domain.repositories.PropiedadHorizontalRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -74,4 +75,10 @@ public interface PHJpaRepository extends JpaRepository<PropiedadHorizontal,Integ
 
     @Query(value = "SELECT descripcion FROM opcion WHERE mocion_idmocion = :idMocion", nativeQuery = true)
     Optional<List<String>> findAllOpciones(@Param("idMocion") Integer idMocion);
+
+    @Query(value = "SELECT * FROM opcion WHERE mocion_idmocion = :idMocion", nativeQuery = true)
+    Optional<List<Opcion>> findAllObjectOpciones(Integer idMocion);
+
+    @Query(value = "SELECT restriccion FROM restriccion WHERE propiedadhorizontal_idph = :idPropiedad", nativeQuery = true)
+    Optional<String> findRestrictionByIdPH(@Param("idPropiedad") Integer idPropiedad);
 }

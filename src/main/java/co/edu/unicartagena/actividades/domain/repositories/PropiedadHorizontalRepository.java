@@ -1,6 +1,7 @@
 package co.edu.unicartagena.actividades.domain.repositories;
 
 import co.edu.unicartagena.actividades.domain.entities.Asistente;
+import co.edu.unicartagena.actividades.domain.entities.Opcion;
 import co.edu.unicartagena.actividades.domain.entities.PropiedadHorizontal;
 
 import java.time.LocalDateTime;
@@ -24,5 +25,7 @@ public interface PropiedadHorizontalRepository {
     Optional<Integer> findIdAsambleaByIdPersona(Integer idPersona);
     String findDescripcion(Integer idMocion);
     Optional<List<String>> findAllOpciones(Integer idMocion);
+    Optional<List<Opcion>> findAllObjectOpciones(Integer idMocion);
+    Optional<String> findRestrictionByIdPH(Integer idPropiedad);
 
 }

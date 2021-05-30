@@ -20,5 +20,6 @@ spring:
       - db/mappings/asamblea.xml
       - db/mappings/mocion.xml
       - db/mappings/opcion.xml
+      - db/mappings/restriccion.xml
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
