@@ -1,6 +1,7 @@
 package co.edu.unicartagena.actividades.infrastructure.persistence.repositories;
 
 import co.edu.unicartagena.actividades.domain.entities.Asistente;
+import co.edu.unicartagena.actividades.domain.entities.Mocion;
 import co.edu.unicartagena.actividades.domain.entities.Opcion;
 import co.edu.unicartagena.actividades.domain.entities.PropiedadHorizontal;
 import co.edu.unicartagena.actividades.domain.repositories.PropiedadHorizontalRepository;
@@ -52,10 +53,13 @@ public interface PHJpaRepository extends JpaRepository<PropiedadHorizontal,Integ
     @Query(value = "SELECT idmocion FROM mocion WHERE asamblea_idasamblea = :idAsamblea AND estado = true", nativeQuery = true)
     Optional<Integer> mocionActiva(@Param("idAsamblea") Integer idAsamblea);
 
+    @Query(value = "SELECT * FROM mocion WHERE asamblea_idasamblea = :idAsamblea AND estado = true", nativeQuery = true)
+    Optional<Mocion> findMocionActivaObject(@Param("idAsamblea") Integer idAsamblea);
+
     @Modifying
-    @Query(value = "INSERT INTO mocion VALUES (DEFAULT, :idAsamblea, :titulo, :estado)", nativeQuery = true)
+    @Query(value = "INSERT INTO mocion VALUES (DEFAULT, :idAsamblea, :titulo, :estado, :tipo)", nativeQuery = true)
     @Transactional
-    Optional<Integer> saveMocion(@Param("titulo") String titulo, @Param("idAsamblea") Integer idAsamblea, @Param("estado") Boolean estado);
+    Optional<Integer> saveMocion(@Param("tipo") String tipo, @Param("titulo") String titulo, @Param("idAsamblea") Integer idAsamblea, @Param("estado") Boolean estado);
 
     @Modifying
     @Query(value = "INSERT INTO opcion VALUES (DEFAULT, :idMocion, :prop)", nativeQuery = true)

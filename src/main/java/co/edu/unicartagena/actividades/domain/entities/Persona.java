@@ -19,4 +19,5 @@ public class Persona {
     private String numeroDocumento;
     private String tipoDocumento;
     private String rol;
+    private Boolean moroso;
 }

@@ -28,6 +28,10 @@
                 <column name="estado"/>
             </basic>
 
+            <basic name="tipo">
+                <column name="tipo"/>
+            </basic>
+
         </attributes>
     </entity>
 </entity-mappings>

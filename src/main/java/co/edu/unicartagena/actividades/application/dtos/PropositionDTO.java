@@ -14,6 +14,7 @@ import java.util.List;
 public class PropositionDTO {
 
     private final Integer idPropiedadHorizontal;
+    private final String tipo;
     private final String titulo;
     private final List<String> proposiciones;
 }

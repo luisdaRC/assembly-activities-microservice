@@ -1,6 +1,8 @@
 package co.edu.unicartagena.actividades.domain.services;
 
+import co.edu.unicartagena.actividades.domain.entities.Mocion;
 import co.edu.unicartagena.actividades.domain.entities.Opcion;
+import co.edu.unicartagena.actividades.domain.entities.Persona;
 import co.edu.unicartagena.actividades.domain.exceptions.BusinessException;
 import co.edu.unicartagena.actividades.domain.repositories.PersonaRepository;
 import co.edu.unicartagena.actividades.domain.repositories.PropiedadHorizontalRepository;
@@ -42,11 +44,8 @@ public class AsambleaService {
     public List<String> getQuorum(String idPropiedad){
         List<String> toReturn = new ArrayList<>();
         Float coeficientesAsistentes = Float.valueOf(0);
-
         Integer idSecretario = phRepository.findIdSecretario(Integer.parseInt(idPropiedad)).get();
-
         Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
-
         Optional<List<Integer>> idsAsistentes = personaRepository.findAllAsistentesByIdAsamblea(idAsamblea);
 
         if(idsAsistentes.isPresent()){
@@ -66,7 +65,7 @@ public class AsambleaService {
         return toReturn;
     }
 
-    public String registerProposicion(Integer idPropiedad, String titulo, List<String> proposiciones){
+    public String registerProposition(Integer idPropiedad, String tipo, String titulo, List<String> proposiciones){
 
         Integer idSecretario = phRepository.findIdSecretario(idPropiedad).get();
         Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
@@ -76,7 +75,7 @@ public class AsambleaService {
 
         // Agregar estado en el front, como cuando se quiere registrar secretario/revisor en administrador
 
-        phRepository.saveMocion(titulo, idAsamblea, true);
+        phRepository.saveMocion(tipo, titulo, idAsamblea, true);
         Integer idMocion = phRepository.mocionActiva(idAsamblea).get();
 
         for(String prop: proposiciones)
@@ -134,31 +133,24 @@ public class AsambleaService {
             Optional<String> restricciones = phRepository.findRestrictionByIdPH(idPropiedad);
             if (restricciones.isPresent()) {
                 //Verificar el tipo de la moción activa
+                Optional<Integer> idSecretario = phRepository.findIdSecretario(idPropiedad);
+                Optional<Integer> idAsamblea = phRepository.findIdAsamblea(idSecretario.get());
+                Optional<Mocion> mocion = phRepository.findMocionActivaObject(idAsamblea.get());
+                String tipoMocion = mocion.get().getTipo();
+                Persona persona = personaRepository.findPersonaById(idPersona);
+                if (persona.getMoroso() && restricciones.get().equals("TODAS"))
+                    return 0;//Hay una restricción que le impide votar
+                if (restricciones.get().contains(tipoMocion) && persona.getMoroso())
+                    return 0;
 
-                /*
-                * Jugar con restricciones y aplicar las reglas de debajo.
-                *
-                * Hacerle split a las comas de restricciones y comparar restricción de la moción con ese array
-                *
-                * */
+                Optional<List<Opcion>> opciones = phRepository.findAllObjectOpciones(mocion.get().getIdMocion());
+                for (Opcion op : opciones.get())
+                    if (op.getDescripcion().equals(eleccion)) {
+                        personaRepository.doVote(mocion.get().getIdMocion(), op.getIdOpcion(), idPersona);
+                        break;
+                    }
+                return 1; //Voto exitoso
 
-                /**
-                 * Para registrar un voto necesito el idPH (solo superadmin en localstorage)para saber qué restricciones de voto tiene la PH
-                 * (de admin, consejo de admin, proposiciones en gral. etc) - Esto varía según el reglamento de la propiedad.
-                 * Entonces, como primer paso necesito crear tabla restricciones con campos: 1.ID 2.idPh 3.Restricción
-                 * Luego, consultar si hay campos de restricción con ese idPH.
-                 * Si no tiene, se registra el voto sin verificar restricción en moción
-                 * Si si tiene, verificar si el tipo de moción de la moción actual (estado true) es el de la restricción.
-                 *
-                 * -Si si, y el propietario es moroso, retornar que el propietario es moro y por lo tanto no puede realizar ese voto.
-                 * -Si no es el de la restricción, el propietario puede votar normal y se registra su voto consultando la lista de las opciones
-                 * con el idMocion (hacer select con list a los 3 campos de esas opciones, el objeto como tal), luego se compara la descripción
-                 * de cada uno de las opciones con la eleccion del parámetro de esta función xD.
-                 * Se toma el id de esa opción y se inserta en la tabla voto junto al idPersona del parámetro y al idMocion anteriormente consultado.
-                 * Listo.
-                 */
-
-                return 0;//Hay una restricción que le impide votar
             } else {
                 //Guardar voto
                 Optional<Integer> idSecretario = phRepository.findIdSecretario(idPropiedad);
@@ -176,6 +168,18 @@ public class AsambleaService {
             System.out.println("Excepción en método votar");
             return 2;//Error al intentar registrar el voto. Consulte con su administrador.
         }
+    }
+
+    public Integer resultadosSecretario(Integer idPropiedad){//O id secretario mejor
+        // 1. Obtener el id de la última moción (el mayor id de la lista de mociones de esa asamblea)
+        // 2. Obtener la descripción o título de esa moción para mostrar en front
+        // 3. Obtener la lista de objetos de voto de esa moción (Ahí también se tiene el idPropietario para coeficiente)
+        // 4. Mostrar dos gráficas: 1. Votación individual y 2. Votación con coeficientes
+        // Crear tabla resultados con llave foranea de moción que contenga los datos de aquí
+        // (en Strings, total de votos por opción y total de coeficiente acumulado por opción, con las opciones en string also)
+        // para evitar muchas consultas
+
+        return 0;
     }
 
 }

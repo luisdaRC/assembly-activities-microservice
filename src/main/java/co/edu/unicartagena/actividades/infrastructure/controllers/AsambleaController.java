@@ -3,6 +3,7 @@ package co.edu.unicartagena.actividades.infrastructure.controllers;
 import co.edu.unicartagena.actividades.application.commands.asamblea.*;
 import co.edu.unicartagena.actividades.application.dtos.AsistenteDTO;
 import co.edu.unicartagena.actividades.application.dtos.PropositionDTO;
+import co.edu.unicartagena.actividades.application.dtos.VotoDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

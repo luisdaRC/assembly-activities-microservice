@@ -40,6 +40,10 @@
                 <column name="rol"/>
             </basic>
 
+            <basic name="moroso">
+                <column name="moroso"/>
+            </basic>
+
         </attributes>
     </entity>
 </entity-mappings>

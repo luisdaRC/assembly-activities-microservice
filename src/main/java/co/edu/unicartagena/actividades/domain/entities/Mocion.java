@@ -16,5 +16,6 @@ public class Mocion {
     private Integer idAsamblea;
     private String descripcionMocion;
     private Boolean estado;
+    private String tipo;
 
 }

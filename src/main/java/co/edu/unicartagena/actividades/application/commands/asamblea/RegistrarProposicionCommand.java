@@ -15,7 +15,8 @@ public class RegistrarProposicionCommand implements Command<String, PropositionD
 
     public String ejecutar(PropositionDTO proposiciones){
         System.out.println("Ejecutando el comando: RegistrarProposicion con id de PH: "+proposiciones);
-        return asambleaService.registerProposicion(proposiciones.getIdPropiedadHorizontal(),
+        return asambleaService.registerProposition(proposiciones.getIdPropiedadHorizontal(),
+                proposiciones.getTipo(),
                 proposiciones.getTitulo(),
                 proposiciones.getProposiciones());
     }
