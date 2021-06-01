@@ -1,9 +1,6 @@
 package co.edu.unicartagena.actividades.infrastructure.persistence.repositories;
 
-import co.edu.unicartagena.actividades.domain.entities.Asistente;
-import co.edu.unicartagena.actividades.domain.entities.Mocion;
-import co.edu.unicartagena.actividades.domain.entities.Opcion;
-import co.edu.unicartagena.actividades.domain.entities.PropiedadHorizontal;
+import co.edu.unicartagena.actividades.domain.entities.*;
 import co.edu.unicartagena.actividades.domain.repositories.PropiedadHorizontalRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -88,4 +85,15 @@ public interface PHJpaRepository extends JpaRepository<PropiedadHorizontal,Integ
 
     @Query(value = "SELECT * FROM mocion WHERE asamblea_idasamblea = :idAsamblea", nativeQuery = true)
     Optional<List<Mocion>> findAllCurrentMociones(@Param("idAsamblea") Integer idAsamblea);
+
+    @Query(value = "SELECT * FROM voto WHERE mocion_idmocion = :idMocion", nativeQuery = true)
+    Optional<List<Voto>> findAllVotos(@Param("idMocion") Integer idMocion);
+
+    @Modifying
+    @Query(value = "INSERT INTO resultado VALUES (DEFAULT, :idMocion, :opciones, :coeficientes, :personasPorOpcion)", nativeQuery = true)
+    @Transactional
+    Optional<Integer> saveResultados(@Param("idMocion") Integer idMocion,
+                                     @Param("opciones") String opciones,
+                                     @Param("coeficientes") String coeficientes,
+                                     @Param("personasPorOpcion") String personasPorOpcion);
 }

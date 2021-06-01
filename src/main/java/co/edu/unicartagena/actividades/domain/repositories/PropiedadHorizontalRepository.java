@@ -28,5 +28,6 @@ public interface PropiedadHorizontalRepository {
     Optional<String> findRestrictionByIdPH(Integer idPropiedad);
     Optional<List<Mocion>> findAllCurrentMociones(Integer idAsamblea);
     Optional<List<Voto>> findAllVotos(Integer idMocion);
+    Optional<Integer> saveResultados(Integer idMocion, String opciones, String coeficientes, String personasPorOpcion);
 
 }

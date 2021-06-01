@@ -97,21 +97,59 @@ public class AsambleaService {
         Integer idSecretario = phRepository.findIdSecretario(idPropiedad).get();
         Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
         Integer idMocion = phRepository.mocionActiva(idAsamblea).get();
-        phRepository.changeStatus(idMocion, false);
 
         //Cuantos votos por cada opción y a cuanto equivale en porcentajes de coeficiente de copropiedad cada opción
         Optional<List<Voto>> votos = phRepository.findAllVotos(idMocion);
+        if(!votos.isPresent() || votos.get().size()<2){
+            return 0;//No hay votos aún para la moción ó hay uno solo.
+        }
+        phRepository.changeStatus(idMocion, false);
 
+        Map<Integer, List<Integer>> votosPorOpcion = new HashMap<>();
+        //Votos por opción
+        for (Voto voto: votos.get()){
+            List<Integer> idsPersonas = new LinkedList<>();
+            if(!votosPorOpcion.containsKey(voto.getIdOpcion())){
+                idsPersonas.add(voto.getIdPersona());
+                votosPorOpcion.put(voto.getIdOpcion(), idsPersonas);
+            }else{
+                idsPersonas = votosPorOpcion.get(voto.getIdOpcion());
+                idsPersonas.add(voto.getIdPersona());
+                votosPorOpcion.replace(voto.getIdOpcion(), idsPersonas);
+            }
+        }
 
+        Map<Integer, Float> coeficientesPorOpcion = new HashMap<>();
+        Map<Integer, Integer> personasPorOpcion = new HashMap<>();
+        Set<Integer> idsOpciones = new HashSet<>();
+        idsOpciones = votosPorOpcion.keySet();
 
+        for(Integer key: idsOpciones){
+            List<Integer> idsPersonas = new LinkedList<>();
+            idsPersonas = votosPorOpcion.get(key);
+            Float coeficientesPersonas = Float.valueOf(0);
 
+            for(Integer idPersona: idsPersonas){
+                coeficientesPersonas += personaRepository.findCoeficienteByIdBienPrivado(idPersona);
+            }
+            coeficientesPorOpcion.put(key, coeficientesPersonas);
+            personasPorOpcion.put(key, votosPorOpcion.get(key).size());
+        }
 
+        Optional<List<Opcion>> opciones = phRepository.findAllObjectOpciones(idMocion);
+        String listaDescripcionOpciones = "";
+        String listaCoeficientes = "";
+        String listaPersonasPorOpcion = "";
 
+        for(Integer id: idsOpciones){
+            listaDescripcionOpciones += opciones.get().get(id).getDescripcion() + ",";
+            listaCoeficientes += coeficientesPorOpcion.get(id).toString() + ",";
+            listaPersonasPorOpcion += personasPorOpcion.get(id).toString() + ",";
+        }
 
+        phRepository.saveResultados(idMocion, listaDescripcionOpciones, listaCoeficientes, listaPersonasPorOpcion);
 
-
-
-        return 0; //Mirar qué se recibe en front de este endpoint
+        return 1;
     }
 
     public Map<Object, Object> getMocionPropietario(Integer idPersona){
@@ -189,6 +227,7 @@ public class AsambleaService {
         Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
         Optional<List<Mocion>> currentMociones = phRepository.findAllCurrentMociones(idAsamblea);
         Integer ultimoId = 0;
+        String titulo = "";
 
         if(!currentMociones.isPresent()){
             Map<Object, Object> model = new HashMap<>();
@@ -199,12 +238,13 @@ public class AsambleaService {
         for(Mocion mocion: currentMociones.get()){
             if(mocion.getIdMocion() > ultimoId){
                 ultimoId = mocion.getIdMocion();
+                titulo = mocion.getDescripcionMocion();
             }
         }
 
-        // 2. Obtener la descripción o título de esa moción para mostrar en front
-        // 3. Obtener la lista de objetos de voto de esa moción (Ahí también se tiene el idPropietario para coeficiente)
-        // 4. Mostrar dos gráficas: 1. Votación individual y 2. Votación con coeficientes
+        // 4. Mostrar dos gráficas: 1. Votación individual y 2. Votación con coeficientes - Vamos por esta.
+        // Ya están resultados guardados.
+
         // Crear tabla resultados con llave foranea de moción que contenga los datos de aquí
         // (en Strings, total de votos por opción y total de coeficiente acumulado por opción, con las opciones en string also)
         // para evitar muchas consultas

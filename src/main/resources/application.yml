@@ -22,5 +22,6 @@ spring:
       - db/mappings/opcion.xml
       - db/mappings/restriccion.xml
       - db/mappings/voto.xml
+      - db/mappings/resultado.xml
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
