@@ -3,6 +3,7 @@ package co.edu.unicartagena.actividades.domain.services;
 import co.edu.unicartagena.actividades.domain.entities.Mocion;
 import co.edu.unicartagena.actividades.domain.entities.Opcion;
 import co.edu.unicartagena.actividades.domain.entities.Persona;
+import co.edu.unicartagena.actividades.domain.entities.Voto;
 import co.edu.unicartagena.actividades.domain.exceptions.BusinessException;
 import co.edu.unicartagena.actividades.domain.repositories.PersonaRepository;
 import co.edu.unicartagena.actividades.domain.repositories.PropiedadHorizontalRepository;
@@ -96,8 +97,21 @@ public class AsambleaService {
         Integer idSecretario = phRepository.findIdSecretario(idPropiedad).get();
         Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
         Integer idMocion = phRepository.mocionActiva(idAsamblea).get();
+        phRepository.changeStatus(idMocion, false);
 
-        return phRepository.changeStatus(idMocion, false);
+        //Cuantos votos por cada opción y a cuanto equivale en porcentajes de coeficiente de copropiedad cada opción
+        Optional<List<Voto>> votos = phRepository.findAllVotos(idMocion);
+
+
+
+
+
+
+
+
+
+
+        return 0; //Mirar qué se recibe en front de este endpoint
     }
 
     public Map<Object, Object> getMocionPropietario(Integer idPersona){
@@ -170,8 +184,24 @@ public class AsambleaService {
         }
     }
 
-    public Integer resultadosSecretario(Integer idPropiedad){//O id secretario mejor
-        // 1. Obtener el id de la última moción (el mayor id de la lista de mociones de esa asamblea)
+    public Map<Object, Object> resultadosSecretario(Integer idPropiedad){
+        Integer idSecretario = phRepository.findIdSecretario(idPropiedad).get();
+        Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
+        Optional<List<Mocion>> currentMociones = phRepository.findAllCurrentMociones(idAsamblea);
+        Integer ultimoId = 0;
+
+        if(!currentMociones.isPresent()){
+            Map<Object, Object> model = new HashMap<>();
+            model.put("hayMocion", false);
+            return model;
+        }
+
+        for(Mocion mocion: currentMociones.get()){
+            if(mocion.getIdMocion() > ultimoId){
+                ultimoId = mocion.getIdMocion();
+            }
+        }
+
         // 2. Obtener la descripción o título de esa moción para mostrar en front
         // 3. Obtener la lista de objetos de voto de esa moción (Ahí también se tiene el idPropietario para coeficiente)
         // 4. Mostrar dos gráficas: 1. Votación individual y 2. Votación con coeficientes
@@ -179,7 +209,7 @@ public class AsambleaService {
         // (en Strings, total de votos por opción y total de coeficiente acumulado por opción, con las opciones en string also)
         // para evitar muchas consultas
 
-        return 0;
+        return ;
     }
 
 }

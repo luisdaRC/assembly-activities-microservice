@@ -81,8 +81,11 @@ public interface PHJpaRepository extends JpaRepository<PropiedadHorizontal,Integ
     Optional<List<String>> findAllOpciones(@Param("idMocion") Integer idMocion);
 
     @Query(value = "SELECT * FROM opcion WHERE mocion_idmocion = :idMocion", nativeQuery = true)
-    Optional<List<Opcion>> findAllObjectOpciones(Integer idMocion);
+    Optional<List<Opcion>> findAllObjectOpciones(@Param("idMocion") Integer idMocion);
 
     @Query(value = "SELECT restriccion FROM restriccion WHERE propiedadhorizontal_idph = :idPropiedad", nativeQuery = true)
     Optional<String> findRestrictionByIdPH(@Param("idPropiedad") Integer idPropiedad);
+
+    @Query(value = "SELECT * FROM mocion WHERE asamblea_idasamblea = :idAsamblea", nativeQuery = true)
+    Optional<List<Mocion>> findAllCurrentMociones(@Param("idAsamblea") Integer idAsamblea);
 }

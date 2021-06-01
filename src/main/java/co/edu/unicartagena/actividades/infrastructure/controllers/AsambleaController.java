@@ -128,4 +128,17 @@ public class AsambleaController {
         }
     }
 
+    @GetMapping(value="obtener/votacion", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> getLastVotation(
+            @RequestParam(name = "idPropiedadHorizontal") String idPropiedadHorizontal){
+        try {
+            Map<Object, Object> model = new HashMap<>();
+            model = getLastVotationCommand.ejecutar(idPropiedadHorizontal);
+            System.out.println(model);
+            return ResponseEntity.ok().body(model);
+        }catch(Exception e){
+            return ResponseEntity.ok().body("Ha ocurrido un error al obtener mociones. "+e.getMessage());
+        }
+    }
+
 }
