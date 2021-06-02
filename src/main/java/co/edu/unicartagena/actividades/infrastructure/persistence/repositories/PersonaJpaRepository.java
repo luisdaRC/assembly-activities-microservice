@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -50,6 +51,8 @@ public interface PersonaJpaRepository extends JpaRepository<Persona,Integer>, Pe
             "(SELECT bienprivado_idbienprivado FROM persona WHERE idpersona = :idPersona)", nativeQuery = true)
     Float findCoeficienteByIdBienPrivado(@Param("idPersona") Integer idPersona);
 
+    @Modifying
     @Query(value = "INSERT INTO voto VALUES (DEFAULT, :idMocion, :idOpcion, :idPersona)", nativeQuery = true)
+    @Transactional
     Integer doVote(@Param("idMocion") Integer idMocion, @Param("idOpcion") Integer idOpcion, @Param("idPersona") Integer idPersona);
 }

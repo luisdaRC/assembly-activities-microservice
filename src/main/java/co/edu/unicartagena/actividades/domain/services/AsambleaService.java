@@ -1,12 +1,8 @@
 package co.edu.unicartagena.actividades.domain.services;
 
-import co.edu.unicartagena.actividades.domain.entities.Mocion;
-import co.edu.unicartagena.actividades.domain.entities.Opcion;
-import co.edu.unicartagena.actividades.domain.entities.Persona;
-import co.edu.unicartagena.actividades.domain.entities.Voto;
+import co.edu.unicartagena.actividades.domain.entities.*;
 import co.edu.unicartagena.actividades.domain.exceptions.BusinessException;
-import co.edu.unicartagena.actividades.domain.repositories.PersonaRepository;
-import co.edu.unicartagena.actividades.domain.repositories.PropiedadHorizontalRepository;
+import co.edu.unicartagena.actividades.domain.repositories.*;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -19,11 +15,23 @@ public class AsambleaService {
 
     PersonaRepository personaRepository;
     PropiedadHorizontalRepository phRepository;
+    OpcionRepository opcionRepository;
+    MocionRepository mocionRepository;
+    ResultadoRepository resultadoRepository;
+    VotoRepository votoRepository;
 
     public AsambleaService(PersonaRepository personaRepository,
-                          PropiedadHorizontalRepository phRepository){
+                          PropiedadHorizontalRepository phRepository,
+                           OpcionRepository opcionRepository,
+                           MocionRepository mocionRepository,
+                           ResultadoRepository resultadoRepository,
+                           VotoRepository votoRepository){
         this.personaRepository = personaRepository;
         this.phRepository = phRepository;
+        this.opcionRepository = opcionRepository;
+        this.mocionRepository = mocionRepository;
+        this.resultadoRepository = resultadoRepository;
+        this.votoRepository = votoRepository;
     }
 
     public Integer terminarAsamblea(String idPropiedad){
@@ -99,7 +107,7 @@ public class AsambleaService {
         Integer idMocion = phRepository.mocionActiva(idAsamblea).get();
 
         //Cuantos votos por cada opción y a cuanto equivale en porcentajes de coeficiente de copropiedad cada opción
-        Optional<List<Voto>> votos = phRepository.findAllVotos(idMocion);
+        Optional<List<Voto>> votos = votoRepository.findByIdMocion(idMocion);
         if(!votos.isPresent() || votos.get().size()<2){
             return 0;//No hay votos aún para la moción ó hay uno solo.
         }
@@ -136,15 +144,17 @@ public class AsambleaService {
             personasPorOpcion.put(key, votosPorOpcion.get(key).size());
         }
 
-        Optional<List<Opcion>> opciones = phRepository.findAllObjectOpciones(idMocion);
+        List<Opcion> opciones = opcionRepository.findByIdMocion(idMocion);
         String listaDescripcionOpciones = "";
         String listaCoeficientes = "";
         String listaPersonasPorOpcion = "";
+        Integer cont = 0;
 
         for(Integer id: idsOpciones){
-            listaDescripcionOpciones += opciones.get().get(id).getDescripcion() + ",";
+            listaDescripcionOpciones += opciones.get(cont).getDescripcion() + ",";
             listaCoeficientes += coeficientesPorOpcion.get(id).toString() + ",";
             listaPersonasPorOpcion += personasPorOpcion.get(id).toString() + ",";
+            cont++;
         }
 
         phRepository.saveResultados(idMocion, listaDescripcionOpciones, listaCoeficientes, listaPersonasPorOpcion);
@@ -179,26 +189,32 @@ public class AsambleaService {
     public Integer registerVote(Integer idPersona, String eleccion){
     //Entero para retornar distintos estados (propietario moroso, error con la bd, voto exitoso)
 
-        try {
+       // try {
             Integer idPropiedad = personaRepository.findIdPropiedadByIdPersona(idPersona);
             // Voy a asumir que las restricciones ya están registradas.
             Optional<String> restricciones = phRepository.findRestrictionByIdPH(idPropiedad);
+
             if (restricciones.isPresent()) {
                 //Verificar el tipo de la moción activa
                 Optional<Integer> idSecretario = phRepository.findIdSecretario(idPropiedad);
                 Optional<Integer> idAsamblea = phRepository.findIdAsamblea(idSecretario.get());
-                Optional<Mocion> mocion = phRepository.findMocionActivaObject(idAsamblea.get());
-                String tipoMocion = mocion.get().getTipo();
+                Optional<Integer> idMocion = phRepository.mocionActiva(idAsamblea.get());
+                Optional<Integer> votado = phRepository.votoPropietario(idPersona, idMocion.get());
+                if(votado.isPresent())
+                    return 3;
+
+                Optional<String> tipoMocion = phRepository.findTipoMocionActiva(idAsamblea.get());
                 Persona persona = personaRepository.findPersonaById(idPersona);
                 if (persona.getMoroso() && restricciones.get().equals("TODAS"))
                     return 0;//Hay una restricción que le impide votar
-                if (restricciones.get().contains(tipoMocion) && persona.getMoroso())
-                    return 0;
+                if(tipoMocion.isPresent())
+                    if (restricciones.get().contains(tipoMocion.get()) && persona.getMoroso())
+                        return 0;
 
-                Optional<List<Opcion>> opciones = phRepository.findAllObjectOpciones(mocion.get().getIdMocion());
-                for (Opcion op : opciones.get())
+                List<Opcion> opciones = opcionRepository.findByIdMocion(idMocion.get());
+                for (Opcion op : opciones)
                     if (op.getDescripcion().equals(eleccion)) {
-                        personaRepository.doVote(mocion.get().getIdMocion(), op.getIdOpcion(), idPersona);
+                        personaRepository.doVote(idMocion.get(), op.getIdOpcion(), idPersona);
                         break;
                     }
                 return 1; //Voto exitoso
@@ -208,24 +224,27 @@ public class AsambleaService {
                 Optional<Integer> idSecretario = phRepository.findIdSecretario(idPropiedad);
                 Optional<Integer> idAsamblea = phRepository.findIdAsamblea(idSecretario.get());
                 Optional<Integer> idMocion = phRepository.mocionActiva(idAsamblea.get());
-                Optional<List<Opcion>> opciones = phRepository.findAllObjectOpciones(idMocion.get());
-                for (Opcion op : opciones.get())
+                Optional<Integer> votado = phRepository.votoPropietario(idPersona, idMocion.get());
+                if(votado.isPresent())
+                    return 3;
+                List<Opcion> opciones = opcionRepository.findByIdMocion(idMocion.get());
+                for (Opcion op : opciones)
                     if (op.getDescripcion().equals(eleccion)) {
                         personaRepository.doVote(idMocion.get(), op.getIdOpcion(), idPersona);
                         break;
                     }
                 return 1; //Voto exitoso
             }
-        }catch (Exception e){
-            System.out.println("Excepción en método votar");
+    /*    }catch (Exception e){
+            System.out.println("Excepción en método votar. "+e.getMessage());
             return 2;//Error al intentar registrar el voto. Consulte con su administrador.
-        }
+        }*/
     }
 
     public Map<Object, Object> resultadosSecretario(Integer idPropiedad){
         Integer idSecretario = phRepository.findIdSecretario(idPropiedad).get();
         Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
-        Optional<List<Mocion>> currentMociones = phRepository.findAllCurrentMociones(idAsamblea);
+        Optional<List<Mocion>> currentMociones = mocionRepository.findByIdAsamblea(idAsamblea);
         Integer ultimoId = 0;
         String titulo = "";
 
@@ -234,6 +253,7 @@ public class AsambleaService {
             model.put("hayMocion", false);
             return model;
         }
+        Map<Object, Object> model = new HashMap<>();
 
         for(Mocion mocion: currentMociones.get()){
             if(mocion.getIdMocion() > ultimoId){
@@ -242,14 +262,38 @@ public class AsambleaService {
             }
         }
 
-        // 4. Mostrar dos gráficas: 1. Votación individual y 2. Votación con coeficientes - Vamos por esta.
-        // Ya están resultados guardados.
+        Optional<Resultado> resultado = resultadoRepository.findByIdMocion(ultimoId);
 
-        // Crear tabla resultados con llave foranea de moción que contenga los datos de aquí
-        // (en Strings, total de votos por opción y total de coeficiente acumulado por opción, con las opciones en string also)
-        // para evitar muchas consultas
+        List<String> opciones = new ArrayList();
+        List<Integer> votosPorOpcion = new ArrayList();
+        List<Float> coeficientesPorVoto = new ArrayList();
 
-        return ;
+
+        opciones = Arrays.asList(resultado.get().getDescripcionesMociones().split(","));
+        model.put("titulo", titulo);
+        model.put("descripciones", opciones);
+
+        //Getting votes by option from db
+        opciones = Arrays.asList(resultado.get().getPersonasPorOpcion().split(","));
+        for (String nVotos: opciones){
+            votosPorOpcion.add(Integer.parseInt(nVotos));
+        }
+        model.put("votosPorOpcion", votosPorOpcion);
+
+        //Getting coeficientes by option
+        opciones = Arrays.asList(resultado.get().getCoeficientesPorOpcion().split(","));
+        Float total = Float.valueOf(0);
+        for (String coeficientes: opciones){
+            total += Float.parseFloat(coeficientes);
+        }
+
+        for(String coeficientes: opciones){
+            coeficientesPorVoto.add(Float.parseFloat(coeficientes)/total*100);
+        }
+
+        model.put("coeficientesPorOpcion", coeficientesPorVoto);
+
+        return model;
     }
 
 }

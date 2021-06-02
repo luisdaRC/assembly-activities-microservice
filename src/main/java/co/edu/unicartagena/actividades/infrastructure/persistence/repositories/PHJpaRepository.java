@@ -50,8 +50,8 @@ public interface PHJpaRepository extends JpaRepository<PropiedadHorizontal,Integ
     @Query(value = "SELECT idmocion FROM mocion WHERE asamblea_idasamblea = :idAsamblea AND estado = true", nativeQuery = true)
     Optional<Integer> mocionActiva(@Param("idAsamblea") Integer idAsamblea);
 
-    @Query(value = "SELECT * FROM mocion WHERE asamblea_idasamblea = :idAsamblea AND estado = true", nativeQuery = true)
-    Optional<Mocion> findMocionActivaObject(@Param("idAsamblea") Integer idAsamblea);
+    @Query(value = "SELECT tipo FROM mocion WHERE asamblea_idasamblea = :idAsamblea AND estado = true", nativeQuery = true)
+    Optional<String> findTipoMocionActiva(@Param("idAsamblea") Integer idAsamblea);
 
     @Modifying
     @Query(value = "INSERT INTO mocion VALUES (DEFAULT, :idAsamblea, :titulo, :estado, :tipo)", nativeQuery = true)
@@ -83,12 +83,6 @@ public interface PHJpaRepository extends JpaRepository<PropiedadHorizontal,Integ
     @Query(value = "SELECT restriccion FROM restriccion WHERE propiedadhorizontal_idph = :idPropiedad", nativeQuery = true)
     Optional<String> findRestrictionByIdPH(@Param("idPropiedad") Integer idPropiedad);
 
-    @Query(value = "SELECT * FROM mocion WHERE asamblea_idasamblea = :idAsamblea", nativeQuery = true)
-    Optional<List<Mocion>> findAllCurrentMociones(@Param("idAsamblea") Integer idAsamblea);
-
-    @Query(value = "SELECT * FROM voto WHERE mocion_idmocion = :idMocion", nativeQuery = true)
-    Optional<List<Voto>> findAllVotos(@Param("idMocion") Integer idMocion);
-
     @Modifying
     @Query(value = "INSERT INTO resultado VALUES (DEFAULT, :idMocion, :opciones, :coeficientes, :personasPorOpcion)", nativeQuery = true)
     @Transactional
@@ -96,4 +90,7 @@ public interface PHJpaRepository extends JpaRepository<PropiedadHorizontal,Integ
                                      @Param("opciones") String opciones,
                                      @Param("coeficientes") String coeficientes,
                                      @Param("personasPorOpcion") String personasPorOpcion);
+
+    @Query(value = "SELECT idvoto FROM voto WHERE persona_idpersona = :idPersona AND mocion_idmocion = :idMocion", nativeQuery = true)
+    Optional<Integer> votoPropietario(@Param("idPersona") Integer idPersona, @Param("idMocion") Integer idMocion);
 }

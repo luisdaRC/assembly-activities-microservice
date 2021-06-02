@@ -24,6 +24,7 @@ public class AsambleaController {
     DetenerVotacionCommand detenerVotacionCommand;
     GetMocionPropietarioCommand getMocionPropietarioCommand;
     RegistrarVotoCommand registrarVotoCommand;
+    GetLastVotationCommand getLastVotationCommand;
 
     @Autowired
     AsambleaController(TerminarAsambleaCommand terminarAsambleaCommand,
@@ -32,7 +33,8 @@ public class AsambleaController {
                        ExisteMocionCommand existeMocionCommand,
                        DetenerVotacionCommand detenerVotacionCommand,
                        GetMocionPropietarioCommand getMocionPropietarioCommand,
-                       RegistrarVotoCommand registrarVotoCommand){
+                       RegistrarVotoCommand registrarVotoCommand,
+                       GetLastVotationCommand getLastVotationCommand){
         this.terminarAsambleaCommand = terminarAsambleaCommand;
         this.getQuorumCommand = getQuorumCommand;
         this.registrarProposicionCommand = registrarProposicionCommand;
@@ -40,6 +42,7 @@ public class AsambleaController {
         this.detenerVotacionCommand = detenerVotacionCommand;
         this.getMocionPropietarioCommand = getMocionPropietarioCommand;
         this.registrarVotoCommand = registrarVotoCommand;
+        this.getLastVotationCommand = getLastVotationCommand;
     }
 
     @GetMapping(value="terminar", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -94,14 +97,14 @@ public class AsambleaController {
     public ResponseEntity<Object> detenerVotacion(
             @RequestParam(name = "idPropiedadHorizontal") String idPropiedad){
 
-        try {
+        //try {
             Integer value = detenerVotacionCommand.ejecutar(idPropiedad);
             Map<Object, Object> model = new HashMap<>();
             model.put("result", value);
             return ResponseEntity.ok().body(model);
-        }catch(Exception e){
+        /*}catch(Exception e){
             return ResponseEntity.ok().body("Ha ocurrido un error al obtener el quorum. "+e.getMessage());
-        }
+        }*/
     }
 
     @GetMapping(value="mocionPropietario", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -121,11 +124,11 @@ public class AsambleaController {
     public ResponseEntity<Object> registrarVoto(
             @RequestBody VotoDTO voto){
 
-        try {
+        //try {
             return ResponseEntity.ok().body(registrarVotoCommand.ejecutar(voto));
-        }catch(Exception e){
-            return ResponseEntity.ok().body("Ha ocurrido un error al registrar el voto. "+e.getMessage());
-        }
+        //}catch(Exception e){
+           // return ResponseEntity.ok().body("Ha ocurrido un error al registrar el voto. "+e.getMessage());
+        //}
     }
 
     @GetMapping(value="obtener/votacion", produces = MediaType.APPLICATION_JSON_VALUE)

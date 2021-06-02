@@ -17,7 +17,7 @@ public interface PropiedadHorizontalRepository {
     Float findTotalCoeficiente(Integer idPropiedad);
     Integer findTotalPropietarios(Integer idPropiedad);
     Optional<Integer> mocionActiva(Integer idAsamblea);
-    Optional<Mocion> findMocionActivaObject(Integer idAsamblea);
+    Optional<String> findTipoMocionActiva(Integer idAsamblea);
     Optional<Integer> saveMocion(String tipo, String titulo, Integer idAsamblea, Boolean estado);
     Optional<Integer> saveOpciones(Integer idMocion, String prop);
     Integer changeStatus(Integer idMocion, Boolean estado);
@@ -26,8 +26,7 @@ public interface PropiedadHorizontalRepository {
     Optional<List<String>> findAllOpciones(Integer idMocion);
     Optional<List<Opcion>> findAllObjectOpciones(Integer idMocion);
     Optional<String> findRestrictionByIdPH(Integer idPropiedad);
-    Optional<List<Mocion>> findAllCurrentMociones(Integer idAsamblea);
-    Optional<List<Voto>> findAllVotos(Integer idMocion);
     Optional<Integer> saveResultados(Integer idMocion, String opciones, String coeficientes, String personasPorOpcion);
+    Optional<Integer> votoPropietario(Integer idPersona, Integer idMocion);
 
 }
