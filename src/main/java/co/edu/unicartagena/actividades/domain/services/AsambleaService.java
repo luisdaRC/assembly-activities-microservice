@@ -151,7 +151,7 @@ public class AsambleaService {
         Integer cont = 0;
 
         for(Integer id: idsOpciones){
-            listaDescripcionOpciones += opciones.get(cont).getDescripcion() + ",";
+            listaDescripcionOpciones += opciones.get(cont).getDescripcion() + "#CustmSpace#";
             listaCoeficientes += coeficientesPorOpcion.get(id).toString() + ",";
             listaPersonasPorOpcion += personasPorOpcion.get(id).toString() + ",";
             cont++;
@@ -177,6 +177,11 @@ public class AsambleaService {
             String titulo = phRepository.findDescripcion(idMocion.get());
             model.put("titulo", titulo);
             Optional<List<String>> opciones = phRepository.findAllOpciones(idMocion.get());
+            if(opciones.get().get(0).startsWith("Plancha")){
+                model.put("esPlancha",true);
+            } else {
+                model.put("esPlancha", false); // Esto para mostrar opciones a propietario
+            }
             model.put("opciones", opciones.get());
 
         }else{
@@ -268,8 +273,12 @@ public class AsambleaService {
         List<Integer> votosPorOpcion = new ArrayList();
         List<Float> coeficientesPorVoto = new ArrayList();
 
-
-        opciones = Arrays.asList(resultado.get().getDescripcionesMociones().split(","));
+        if(resultado.get().getDescripcionesMociones().startsWith("Plancha")){
+            model.put("esPlancha", true);
+        } else {
+            model.put("esPlancha", false);
+        }
+        opciones = Arrays.asList(resultado.get().getDescripcionesMociones().split("#CustmSpace#"));
         model.put("titulo", titulo);
         model.put("descripciones", opciones);
 
