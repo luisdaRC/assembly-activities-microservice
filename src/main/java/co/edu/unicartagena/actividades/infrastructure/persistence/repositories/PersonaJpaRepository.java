@@ -55,4 +55,6 @@ public interface PersonaJpaRepository extends JpaRepository<Persona,Integer>, Pe
     @Query(value = "INSERT INTO voto VALUES (DEFAULT, :idMocion, :idOpcion, :idPersona)", nativeQuery = true)
     @Transactional
     Integer doVote(@Param("idMocion") Integer idMocion, @Param("idOpcion") Integer idOpcion, @Param("idPersona") Integer idPersona);
+
+    Optional<Persona> findByTipoDocumentoAndNumeroDocumento(String tipoDoc, String numDoc);
 }

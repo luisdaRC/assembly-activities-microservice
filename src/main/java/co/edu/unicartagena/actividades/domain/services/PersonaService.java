@@ -9,9 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional
@@ -88,14 +86,25 @@ public class PersonaService {
     }
 
     public String registrarAbandono(Integer idPersona, Integer idPropiedad){
-
         Integer idSecretario = phRepository.findIdSecretario(idPropiedad).get();
-
         Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
-
         LocalDateTime horaSalida = LocalDateTime.now();
         personaRepository.registrarAbandono(idPersona, idAsamblea, horaSalida);
-
         return "El propietario abandonó exitosamente la asamblea.";
+    }
+
+    public Map<Object, Object> verificarCandidato(String numDoc, String tipoDoc){
+        Optional<Persona> persona = personaRepository.findByTipoDocumentoAndNumeroDocumento(numDoc, tipoDoc);
+        Map<Object, Object> model = new HashMap<>();
+        if (!persona.isPresent()){
+            model.put("id", 0);
+        } else if (persona.get().getMoroso()){
+            model.put("id", 1);
+            model.put("nombre", persona.get().getNombres() + " " + persona.get().getApellidos());
+        } else {
+            model.put("id", 2);
+            model.put("nombre", persona.get().getNombres() + " " + persona.get().getApellidos());
+        }
+        return model;
     }
 }

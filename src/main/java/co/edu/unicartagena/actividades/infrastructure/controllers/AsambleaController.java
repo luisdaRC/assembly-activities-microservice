@@ -1,9 +1,8 @@
 package co.edu.unicartagena.actividades.infrastructure.controllers;
 
 import co.edu.unicartagena.actividades.application.commands.asamblea.*;
-import co.edu.unicartagena.actividades.application.dtos.AsistenteDTO;
-import co.edu.unicartagena.actividades.application.dtos.PropositionDTO;
-import co.edu.unicartagena.actividades.application.dtos.VotoDTO;
+import co.edu.unicartagena.actividades.application.commands.persona.VerificarCandidatoCommand;
+import co.edu.unicartagena.actividades.application.dtos.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +24,7 @@ public class AsambleaController {
     GetMocionPropietarioCommand getMocionPropietarioCommand;
     RegistrarVotoCommand registrarVotoCommand;
     GetLastVotationCommand getLastVotationCommand;
+    VerificarCandidatoCommand verificarCandidatoCommand;
 
     @Autowired
     AsambleaController(TerminarAsambleaCommand terminarAsambleaCommand,
@@ -34,7 +34,8 @@ public class AsambleaController {
                        DetenerVotacionCommand detenerVotacionCommand,
                        GetMocionPropietarioCommand getMocionPropietarioCommand,
                        RegistrarVotoCommand registrarVotoCommand,
-                       GetLastVotationCommand getLastVotationCommand){
+                       GetLastVotationCommand getLastVotationCommand,
+                       VerificarCandidatoCommand verificarCandidatoCommand){
         this.terminarAsambleaCommand = terminarAsambleaCommand;
         this.getQuorumCommand = getQuorumCommand;
         this.registrarProposicionCommand = registrarProposicionCommand;
@@ -43,6 +44,7 @@ public class AsambleaController {
         this.getMocionPropietarioCommand = getMocionPropietarioCommand;
         this.registrarVotoCommand = registrarVotoCommand;
         this.getLastVotationCommand = getLastVotationCommand;
+        this.verificarCandidatoCommand = verificarCandidatoCommand;
     }
 
     @GetMapping(value="terminar", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -69,7 +71,7 @@ public class AsambleaController {
     }
 
     @PostMapping(value="proposition", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> registrarAsistente(
+    public ResponseEntity<Object> registrarProposicion(
             @RequestBody PropositionDTO propositions){
 
         try {
@@ -141,6 +143,17 @@ public class AsambleaController {
             return ResponseEntity.ok().body(model);
         }catch(Exception e){
             return ResponseEntity.ok().body("Ha ocurrido un error al obtener mociones. "+e.getMessage());
+        }
+    }
+
+    @PostMapping(value="verificarCandidato", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> verificarCandidato(
+            @RequestBody DocumentoDTO documentoDTO){
+
+        try {
+        return ResponseEntity.ok().body(verificarCandidatoCommand.ejecutar(documentoDTO));
+        }catch(Exception e){
+         return ResponseEntity.ok().body("Ha ocurrido un error al registrar el voto. "+e.getMessage());
         }
     }
 

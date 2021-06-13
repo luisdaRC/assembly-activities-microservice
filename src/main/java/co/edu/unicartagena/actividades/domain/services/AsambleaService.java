@@ -90,7 +90,7 @@ public class AsambleaService {
         for(String prop: proposiciones)
             phRepository.saveOpciones(idMocion, prop);
 
-        return "La proposición ha sido guardada correctamente.";
+        return "1";
     }
 
     public Boolean getExisteMocion(Integer idPropiedad){
