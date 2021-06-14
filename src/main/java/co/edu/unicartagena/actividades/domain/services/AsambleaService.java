@@ -249,6 +249,15 @@ public class AsambleaService {
     public Map<Object, Object> resultadosSecretario(Integer idPropiedad){
         Integer idSecretario = phRepository.findIdSecretario(idPropiedad).get();
         Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
+        return getAllResults(idAsamblea);
+    }
+
+    public Map<Object, Object> resultadosPropietario(Integer idPersona){
+        Optional<Integer> idAsamblea = phRepository.findIdAsambleaByIdPersona(idPersona);
+        return getAllResults(idAsamblea.get());
+    }
+
+    public Map<Object, Object> getAllResults(Integer idAsamblea){
         Optional<List<Mocion>> currentMociones = mocionRepository.findByIdAsamblea(idAsamblea);
         Integer ultimoId = 0;
         String titulo = "";

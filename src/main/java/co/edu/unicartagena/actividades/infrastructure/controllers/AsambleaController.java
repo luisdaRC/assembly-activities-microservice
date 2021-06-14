@@ -25,6 +25,7 @@ public class AsambleaController {
     RegistrarVotoCommand registrarVotoCommand;
     GetLastVotationCommand getLastVotationCommand;
     VerificarCandidatoCommand verificarCandidatoCommand;
+    GetVotationPropietarioCommand getVotationPropietarioCommand;
 
     @Autowired
     AsambleaController(TerminarAsambleaCommand terminarAsambleaCommand,
@@ -35,7 +36,8 @@ public class AsambleaController {
                        GetMocionPropietarioCommand getMocionPropietarioCommand,
                        RegistrarVotoCommand registrarVotoCommand,
                        GetLastVotationCommand getLastVotationCommand,
-                       VerificarCandidatoCommand verificarCandidatoCommand){
+                       VerificarCandidatoCommand verificarCandidatoCommand,
+                       GetVotationPropietarioCommand getVotationPropietarioCommand){
         this.terminarAsambleaCommand = terminarAsambleaCommand;
         this.getQuorumCommand = getQuorumCommand;
         this.registrarProposicionCommand = registrarProposicionCommand;
@@ -45,6 +47,7 @@ public class AsambleaController {
         this.registrarVotoCommand = registrarVotoCommand;
         this.getLastVotationCommand = getLastVotationCommand;
         this.verificarCandidatoCommand = verificarCandidatoCommand;
+        this.getVotationPropietarioCommand = getVotationPropietarioCommand;
     }
 
     @GetMapping(value="terminar", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -139,6 +142,19 @@ public class AsambleaController {
         try {
             Map<Object, Object> model = new HashMap<>();
             model = getLastVotationCommand.ejecutar(idPropiedadHorizontal);
+            System.out.println(model);
+            return ResponseEntity.ok().body(model);
+        }catch(Exception e){
+            return ResponseEntity.ok().body("Ha ocurrido un error al obtener mociones. "+e.getMessage());
+        }
+    }
+
+    @GetMapping(value="results/votacion", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> getVotationPropietario(
+            @RequestParam(name = "idPersona") String idPersona){
+        try {
+            Map<Object, Object> model = new HashMap<>();
+            model = getVotationPropietarioCommand.ejecutar(idPersona);
             System.out.println(model);
             return ResponseEntity.ok().body(model);
         }catch(Exception e){
