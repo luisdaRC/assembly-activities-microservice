@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +27,7 @@ public class AsambleaController {
     GetLastVotationCommand getLastVotationCommand;
     VerificarCandidatoCommand verificarCandidatoCommand;
     GetVotationPropietarioCommand getVotationPropietarioCommand;
+    GetAllResultadosCommand getAllResultadosCommand;
 
     @Autowired
     AsambleaController(TerminarAsambleaCommand terminarAsambleaCommand,
@@ -37,7 +39,8 @@ public class AsambleaController {
                        RegistrarVotoCommand registrarVotoCommand,
                        GetLastVotationCommand getLastVotationCommand,
                        VerificarCandidatoCommand verificarCandidatoCommand,
-                       GetVotationPropietarioCommand getVotationPropietarioCommand){
+                       GetVotationPropietarioCommand getVotationPropietarioCommand,
+                       GetAllResultadosCommand getAllResultadosCommand){
         this.terminarAsambleaCommand = terminarAsambleaCommand;
         this.getQuorumCommand = getQuorumCommand;
         this.registrarProposicionCommand = registrarProposicionCommand;
@@ -48,6 +51,7 @@ public class AsambleaController {
         this.getLastVotationCommand = getLastVotationCommand;
         this.verificarCandidatoCommand = verificarCandidatoCommand;
         this.getVotationPropietarioCommand = getVotationPropietarioCommand;
+        this.getAllResultadosCommand = getAllResultadosCommand;
     }
 
     @GetMapping(value="terminar", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -142,6 +146,19 @@ public class AsambleaController {
         try {
             Map<Object, Object> model = new HashMap<>();
             model = getLastVotationCommand.ejecutar(idPropiedadHorizontal);
+            System.out.println(model);
+            return ResponseEntity.ok().body(model);
+        }catch(Exception e){
+            return ResponseEntity.ok().body("Ha ocurrido un error al obtener mociones. "+e.getMessage());
+        }
+    }
+
+    @GetMapping(value="results/revisor", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> getAllResultados(
+            @RequestParam(name = "idPropiedadHorizontal") String idPropiedadHorizontal){
+        try {
+            List<Map<Object, Object>> model = new LinkedList<>();
+            model = getAllResultadosCommand.ejecutar(idPropiedadHorizontal);
             System.out.println(model);
             return ResponseEntity.ok().body(model);
         }catch(Exception e){

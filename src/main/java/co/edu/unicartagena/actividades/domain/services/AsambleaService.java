@@ -249,33 +249,45 @@ public class AsambleaService {
     public Map<Object, Object> resultadosSecretario(Integer idPropiedad){
         Integer idSecretario = phRepository.findIdSecretario(idPropiedad).get();
         Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
-        return getAllResults(idAsamblea);
+        return getAllResults(idAsamblea, 0);
+    }
+
+    public List<Map<Object, Object>> resultadosRevisor(Integer idPropiedad){
+        Integer idSecretario = phRepository.findIdSecretario(idPropiedad).get();
+        Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
+        Optional<List<Mocion>> currentMociones = mocionRepository.findByIdAsamblea(idAsamblea);
+        List<Map<Object, Object>> allResults = new LinkedList<>();
+        for(Mocion mocion: currentMociones.get()){
+            allResults.add(getAllResults(idAsamblea, mocion.getIdMocion()));
+        }
+        return allResults;
     }
 
     public Map<Object, Object> resultadosPropietario(Integer idPersona){
         Optional<Integer> idAsamblea = phRepository.findIdAsambleaByIdPersona(idPersona);
-        return getAllResults(idAsamblea.get());
+        return getAllResults(idAsamblea.get(), 0);
     }
 
-    public Map<Object, Object> getAllResults(Integer idAsamblea){
-        Optional<List<Mocion>> currentMociones = mocionRepository.findByIdAsamblea(idAsamblea);
-        Integer ultimoId = 0;
+    public Map<Object, Object> getAllResults(Integer idAsamblea, Integer ultimoId) {
         String titulo = "";
+        if (ultimoId == 0){
+            Optional<List<Mocion>> currentMociones = mocionRepository.findByIdAsamblea(idAsamblea);
 
-        if(!currentMociones.isPresent()){
-            Map<Object, Object> model = new HashMap<>();
-            model.put("hayMocion", false);
-            return model;
-        }
-        Map<Object, Object> model = new HashMap<>();
 
-        for(Mocion mocion: currentMociones.get()){
-            if(mocion.getIdMocion() > ultimoId){
-                ultimoId = mocion.getIdMocion();
-                titulo = mocion.getDescripcionMocion();
+            if (!currentMociones.isPresent()) {
+                Map<Object, Object> model = new HashMap<>();
+                model.put("hayMocion", false);
+                return model;
+            }
+
+            for (Mocion mocion : currentMociones.get()) {
+                if (mocion.getIdMocion() > ultimoId) {
+                    ultimoId = mocion.getIdMocion();
+                    titulo = mocion.getDescripcionMocion();
+                }
             }
         }
-
+        Map<Object, Object> model = new HashMap<>();
         Optional<Resultado> resultado = resultadoRepository.findByIdMocion(ultimoId);
 
         List<String> opciones = new ArrayList();
