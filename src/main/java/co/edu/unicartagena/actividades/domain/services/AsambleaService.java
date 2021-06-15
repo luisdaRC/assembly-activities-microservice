@@ -256,9 +256,14 @@ public class AsambleaService {
         Integer idSecretario = phRepository.findIdSecretario(idPropiedad).get();
         Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
         Optional<List<Mocion>> currentMociones = mocionRepository.findByIdAsamblea(idAsamblea);
+        System.out.println(currentMociones);
         List<Map<Object, Object>> allResults = new LinkedList<>();
         for(Mocion mocion: currentMociones.get()){
-            allResults.add(getAllResults(idAsamblea, mocion.getIdMocion()));
+            Map<Object, Object> model;
+            model = getAllResults(idAsamblea, mocion.getIdMocion());
+            model.put("titulo", mocion.getDescripcionMocion());
+            allResults.add(model);
+            System.out.println(allResults);
         }
         return allResults;
     }
@@ -272,7 +277,6 @@ public class AsambleaService {
         String titulo = "";
         if (ultimoId == 0){
             Optional<List<Mocion>> currentMociones = mocionRepository.findByIdAsamblea(idAsamblea);
-
 
             if (!currentMociones.isPresent()) {
                 Map<Object, Object> model = new HashMap<>();
@@ -289,7 +293,6 @@ public class AsambleaService {
         }
         Map<Object, Object> model = new HashMap<>();
         Optional<Resultado> resultado = resultadoRepository.findByIdMocion(ultimoId);
-
         List<String> opciones = new ArrayList();
         List<Integer> votosPorOpcion = new ArrayList();
         List<Float> coeficientesPorVoto = new ArrayList();
@@ -322,7 +325,6 @@ public class AsambleaService {
         }
 
         model.put("coeficientesPorOpcion", coeficientesPorVoto);
-
         return model;
     }
 
