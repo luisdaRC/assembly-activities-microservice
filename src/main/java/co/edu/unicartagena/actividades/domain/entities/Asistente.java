@@ -16,6 +16,7 @@ public class Asistente {
     private Integer idAsistente;
     private Integer idAsamblea;
     private Integer idPersona;
+    private Integer idRepresentado;
     private String rol;
     private LocalDateTime horaLlegada;
     private LocalDateTime horaSalida;

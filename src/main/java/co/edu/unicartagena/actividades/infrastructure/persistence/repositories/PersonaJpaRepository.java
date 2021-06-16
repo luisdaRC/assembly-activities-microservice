@@ -57,4 +57,17 @@ public interface PersonaJpaRepository extends JpaRepository<Persona,Integer>, Pe
     Integer doVote(@Param("idMocion") Integer idMocion, @Param("idOpcion") Integer idOpcion, @Param("idPersona") Integer idPersona);
 
     Optional<Persona> findByTipoDocumentoAndNumeroDocumento(String tipoDoc, String numDoc);
+    Persona save(Persona persona);
+
+    @Modifying
+    @Query(value = "INSERT INTO persona VALUES (:id, :idBienPrivado, :nombres, :apellidos, :tipo, :numero, :rol, :moroso)", nativeQuery = true)
+    @Transactional
+    Integer saveDataDelegado(@Param("id") Integer id, @Param("idBienPrivado") Integer idBienPrivado, @Param("tipo") String tipo, @Param("numero") String numero,
+                             @Param("nombres") String nombres, @Param("apellidos") String apellidos, @Param("rol") String rol, @Param("moroso") Boolean moroso);
+
+    @Modifying
+    @Query(value = "INSERT INTO asistente VALUES (DEFAULT, :idAsamblea, :idDelegado, :idRepresentado, :rol, LOCALTIMESTAMP, LOCALTIMESTAMP)", nativeQuery = true)
+    //@Transactional(noRollbackFor=Exception.class)
+    Integer saveDelegadoAsistente(@Param("idAsamblea") Integer idAsamblea, @Param("idDelegado") Integer idDelegado,
+                                  @Param("idRepresentado") Integer idRepresentado, @Param("rol") String rol);
 }

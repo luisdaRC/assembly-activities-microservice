@@ -17,5 +17,8 @@ public interface PersonaRepository {
     Integer findIdPropiedadByIdPersona(Integer idPersona);
     Integer doVote(Integer idMocion, Integer idOpcion, Integer idPersona);
     Optional<Persona> findByTipoDocumentoAndNumeroDocumento(String tipoDoc, String numDoc);
+    Integer saveDataDelegado(Integer id, Integer idBienPrivado, String tipo, String  numero, String  nombres, String  apellidos, String rol, Boolean moroso);
+    Integer saveDelegadoAsistente(Integer idAsamblea, Integer idDelegado, Integer idRepresentado, String rol);
+    Persona save(Persona persona);
 
 }

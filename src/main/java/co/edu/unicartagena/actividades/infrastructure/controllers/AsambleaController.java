@@ -1,6 +1,7 @@
 package co.edu.unicartagena.actividades.infrastructure.controllers;
 
 import co.edu.unicartagena.actividades.application.commands.asamblea.*;
+import co.edu.unicartagena.actividades.application.commands.persona.RegistrarPoderCedidoCommand;
 import co.edu.unicartagena.actividades.application.commands.persona.VerificarCandidatoCommand;
 import co.edu.unicartagena.actividades.application.dtos.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ public class AsambleaController {
     VerificarCandidatoCommand verificarCandidatoCommand;
     GetVotationPropietarioCommand getVotationPropietarioCommand;
     GetAllResultadosCommand getAllResultadosCommand;
+    RegistrarPoderCedidoCommand registrarPoderCedidoCommand;
 
     @Autowired
     AsambleaController(TerminarAsambleaCommand terminarAsambleaCommand,
@@ -40,7 +42,8 @@ public class AsambleaController {
                        GetLastVotationCommand getLastVotationCommand,
                        VerificarCandidatoCommand verificarCandidatoCommand,
                        GetVotationPropietarioCommand getVotationPropietarioCommand,
-                       GetAllResultadosCommand getAllResultadosCommand){
+                       GetAllResultadosCommand getAllResultadosCommand,
+                       RegistrarPoderCedidoCommand registrarPoderCedidoCommand){
         this.terminarAsambleaCommand = terminarAsambleaCommand;
         this.getQuorumCommand = getQuorumCommand;
         this.registrarProposicionCommand = registrarProposicionCommand;
@@ -52,6 +55,7 @@ public class AsambleaController {
         this.verificarCandidatoCommand = verificarCandidatoCommand;
         this.getVotationPropietarioCommand = getVotationPropietarioCommand;
         this.getAllResultadosCommand = getAllResultadosCommand;
+        this.registrarPoderCedidoCommand = registrarPoderCedidoCommand;
     }
 
     @GetMapping(value="terminar", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -188,6 +192,13 @@ public class AsambleaController {
         }catch(Exception e){
          return ResponseEntity.ok().body("Ha ocurrido un error al registrar el voto. "+e.getMessage());
         }
+    }
+
+    @PostMapping(value="poder", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> registrarPoderCedido(
+            @RequestBody DesignadoDTO designadoDTO){
+
+        return ResponseEntity.ok().body(registrarPoderCedidoCommand.ejecutar(designadoDTO));
     }
 
 }

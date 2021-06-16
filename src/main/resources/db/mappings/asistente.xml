@@ -24,6 +24,10 @@
                 <column name="persona_idpersona"/>
             </basic>
 
+            <basic name="idRepresentado">
+                <column name="idrepresentado"/>
+            </basic>
+
             <basic name="rol">
                 <column name="rol"/>
             </basic>

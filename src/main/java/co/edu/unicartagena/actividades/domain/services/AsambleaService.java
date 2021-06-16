@@ -5,6 +5,7 @@ import co.edu.unicartagena.actividades.domain.exceptions.BusinessException;
 import co.edu.unicartagena.actividades.domain.repositories.*;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.ThreadLocalRandom;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -19,19 +20,22 @@ public class AsambleaService {
     MocionRepository mocionRepository;
     ResultadoRepository resultadoRepository;
     VotoRepository votoRepository;
+    AsistenteRepository asistenteRepository;
 
     public AsambleaService(PersonaRepository personaRepository,
                           PropiedadHorizontalRepository phRepository,
                            OpcionRepository opcionRepository,
                            MocionRepository mocionRepository,
                            ResultadoRepository resultadoRepository,
-                           VotoRepository votoRepository){
+                           VotoRepository votoRepository,
+                           AsistenteRepository asistenteRepository){
         this.personaRepository = personaRepository;
         this.phRepository = phRepository;
         this.opcionRepository = opcionRepository;
         this.mocionRepository = mocionRepository;
         this.resultadoRepository = resultadoRepository;
         this.votoRepository = votoRepository;
+        this.asistenteRepository = asistenteRepository;
     }
 
     public Integer terminarAsamblea(String idPropiedad){
@@ -328,4 +332,58 @@ public class AsambleaService {
         return model;
     }
 
+    public Integer registrarPoder(Integer idPropiedad, String rol, String tipo, String numero,
+                   String nombres, String apellidos, String tipoPropietario, String numeroPropietario) {
+
+        try{
+            Optional<Persona> existePropietario = personaRepository.
+                    findByTipoDocumentoAndNumeroDocumento(tipoPropietario, numeroPropietario);
+
+            if (!existePropietario.isPresent()) {
+                return 0;
+            }
+
+            Optional<Persona> existeDelegado = personaRepository.
+                    findByTipoDocumentoAndNumeroDocumento(tipo, numero);
+            Integer idSecretario = phRepository.findIdSecretario(idPropiedad).get();
+            Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
+
+            if (existeDelegado.isPresent()) {
+                LocalDateTime horallegada = LocalDateTime.now();/*
+                Asistente asistente = new Asistente();
+                asistente.setIdAsamblea(idAsamblea);
+                asistente.setIdPersona(existeDelegado.get().getIdPersona());
+                asistente.setIdRepresentado(existePropietario.get().getIdPersona());
+                asistente.setRol(rol);
+                asistente.setHoraLlegada(horallegada);
+                asistente.setHoraSalida(horallegada);
+                asistenteRepository.save(asistente);*/
+
+                personaRepository.saveDelegadoAsistente(idAsamblea, existeDelegado.get().getIdPersona(),
+                        existePropietario.get().getIdPersona(), rol);
+                return 1;
+            } else {
+                int id = ThreadLocalRandom.current().nextInt(-2147483640, 0);
+                personaRepository.saveDataDelegado(id, existePropietario.get().getIdBienPrivado(),tipo, numero, nombres, apellidos, rol, false);
+
+                Optional<Persona> delegado = personaRepository.
+                        findByTipoDocumentoAndNumeroDocumento(tipo, numero);
+                LocalDateTime horallegada = LocalDateTime.now();/*
+                Asistente asistente = new Asistente();
+                asistente.setIdAsamblea(idAsamblea);
+                asistente.setIdPersona(delegado.get().getIdPersona());
+                asistente.setIdRepresentado(existePropietario.get().getIdPersona());
+                asistente.setRol(rol);
+                asistente.setHoraLlegada(horallegada);
+                asistente.setHoraSalida(horallegada);
+                asistenteRepository.save(asistente);*/
+
+                personaRepository.saveDelegadoAsistente(idAsamblea, delegado.get().getIdPersona(),
+                        existePropietario.get().getIdPersona(), rol);
+                return 1;
+            }
+        }catch(Exception e){
+            return 2;
+        }
+    }
 }
