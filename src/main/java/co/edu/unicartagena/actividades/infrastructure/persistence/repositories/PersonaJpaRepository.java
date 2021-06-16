@@ -66,8 +66,10 @@ public interface PersonaJpaRepository extends JpaRepository<Persona,Integer>, Pe
                              @Param("nombres") String nombres, @Param("apellidos") String apellidos, @Param("rol") String rol, @Param("moroso") Boolean moroso);
 
     @Modifying
-    @Query(value = "INSERT INTO asistente VALUES (DEFAULT, :idAsamblea, :idDelegado, :idRepresentado, :rol, LOCALTIMESTAMP, LOCALTIMESTAMP)", nativeQuery = true)
-    //@Transactional(noRollbackFor=Exception.class)
+    @Query(value = "INSERT INTO asistente VALUES (DEFAULT, :idAsamblea, :idDelegado, :rol, :horaLlegada, :horaSalida, :idRepresentado)", nativeQuery = true)
+    @Transactional
     Integer saveDelegadoAsistente(@Param("idAsamblea") Integer idAsamblea, @Param("idDelegado") Integer idDelegado,
-                                  @Param("idRepresentado") Integer idRepresentado, @Param("rol") String rol);
+                                  @Param("idRepresentado") Integer idRepresentado, @Param("rol") String rol,
+                                  @Param("horaLlegada") LocalDateTime horaLlegada,
+                                  @Param("horaSalida") LocalDateTime horaSalida);
 }

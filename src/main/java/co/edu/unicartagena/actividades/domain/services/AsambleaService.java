@@ -20,22 +20,19 @@ public class AsambleaService {
     MocionRepository mocionRepository;
     ResultadoRepository resultadoRepository;
     VotoRepository votoRepository;
-    AsistenteRepository asistenteRepository;
 
     public AsambleaService(PersonaRepository personaRepository,
                           PropiedadHorizontalRepository phRepository,
                            OpcionRepository opcionRepository,
                            MocionRepository mocionRepository,
                            ResultadoRepository resultadoRepository,
-                           VotoRepository votoRepository,
-                           AsistenteRepository asistenteRepository){
+                           VotoRepository votoRepository){
         this.personaRepository = personaRepository;
         this.phRepository = phRepository;
         this.opcionRepository = opcionRepository;
         this.mocionRepository = mocionRepository;
         this.resultadoRepository = resultadoRepository;
         this.votoRepository = votoRepository;
-        this.asistenteRepository = asistenteRepository;
     }
 
     public Integer terminarAsamblea(String idPropiedad){
@@ -349,18 +346,10 @@ public class AsambleaService {
             Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
 
             if (existeDelegado.isPresent()) {
-                LocalDateTime horallegada = LocalDateTime.now();/*
-                Asistente asistente = new Asistente();
-                asistente.setIdAsamblea(idAsamblea);
-                asistente.setIdPersona(existeDelegado.get().getIdPersona());
-                asistente.setIdRepresentado(existePropietario.get().getIdPersona());
-                asistente.setRol(rol);
-                asistente.setHoraLlegada(horallegada);
-                asistente.setHoraSalida(horallegada);
-                asistenteRepository.save(asistente);*/
+                LocalDateTime llegada = LocalDateTime.now();
 
                 personaRepository.saveDelegadoAsistente(idAsamblea, existeDelegado.get().getIdPersona(),
-                        existePropietario.get().getIdPersona(), rol);
+                        existePropietario.get().getIdPersona(), rol, llegada, llegada);
                 return 1;
             } else {
                 int id = ThreadLocalRandom.current().nextInt(-2147483640, 0);
@@ -368,18 +357,10 @@ public class AsambleaService {
 
                 Optional<Persona> delegado = personaRepository.
                         findByTipoDocumentoAndNumeroDocumento(tipo, numero);
-                LocalDateTime horallegada = LocalDateTime.now();/*
-                Asistente asistente = new Asistente();
-                asistente.setIdAsamblea(idAsamblea);
-                asistente.setIdPersona(delegado.get().getIdPersona());
-                asistente.setIdRepresentado(existePropietario.get().getIdPersona());
-                asistente.setRol(rol);
-                asistente.setHoraLlegada(horallegada);
-                asistente.setHoraSalida(horallegada);
-                asistenteRepository.save(asistente);*/
+                LocalDateTime llegada = LocalDateTime.now();
 
                 personaRepository.saveDelegadoAsistente(idAsamblea, delegado.get().getIdPersona(),
-                        existePropietario.get().getIdPersona(), rol);
+                        existePropietario.get().getIdPersona(), rol, llegada, llegada);
                 return 1;
             }
         }catch(Exception e){
