@@ -26,12 +26,10 @@ public interface PHJpaRepository extends JpaRepository<PropiedadHorizontal,Integ
     @Query(value = "SELECT idasamblea FROM asamblea WHERE personalapoyo_idpa = :idSecretario AND fechainicio = fechafin", nativeQuery = true)
     Optional<Integer> findIdAsamblea(@Param("idSecretario") Integer idSecretario);
 
-    @Query(value = "SELECT horallegada FROM asistente WHERE horallegada = " +
-            "(SELECT MAX(horallegada) FROM asistente WHERE persona_idpersona = :idPersona AND asamblea_idasamblea = :idAsamblea)", nativeQuery = true)
+    @Query(value = "SELECT horallegada FROM asistente WHERE persona_idpersona = :idPersona AND asamblea_idasamblea = :idAsamblea", nativeQuery = true)
     Optional<LocalDateTime> propietarioHoraLlegada(@Param("idAsamblea") Integer idAsamblea, @Param("idPersona") Integer idPersona);
 
-    @Query(value = "SELECT horasalida FROM asistente WHERE horallegada = " +
-            "(SELECT MAX(horallegada) FROM asistente WHERE persona_idpersona = :idPersona AND asamblea_idasamblea = :idAsamblea)", nativeQuery = true)
+    @Query(value = "SELECT horasalida FROM asistente WHERE persona_idpersona = :idPersona AND asamblea_idasamblea = :idAsamblea", nativeQuery = true)
     Optional<LocalDateTime> propietarioHoraSalida(@Param("idAsamblea") Integer idAsamblea, @Param("idPersona") Integer idPersona);
 
     @Modifying

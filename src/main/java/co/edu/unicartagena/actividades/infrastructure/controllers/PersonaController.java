@@ -42,11 +42,11 @@ public class PersonaController {
     public ResponseEntity<Object> registrarAsistente(
             @RequestBody AsistenteDTO data){
 
-        try {
+        //try {
             return ResponseEntity.ok().body(registrarAsistenteCommand.ejecutar(data));
-        }catch(Exception e){
+        /*}catch(Exception e){
             return ResponseEntity.ok().body("Ha ocurrido un error al registrar el asistente. "+e.getMessage());
-        }
+        }*/
     }
 
     @GetMapping(value = "listarAsistentes", produces = MediaType.APPLICATION_JSON_VALUE)

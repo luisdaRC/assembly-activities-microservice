@@ -60,29 +60,24 @@ public class PersonaService {
         return asistentes;
     }
 
-    public String registrarAsistente(Integer idPersona, Integer idPropiedad){
-
-        if(!phRepository.findPHById(idPropiedad).isPresent())
-            return "La propiedad indicada no existe";
+    public Integer registrarAsistente(Integer idPersona, Integer idPropiedad){
 
         Integer idSecretario = phRepository.findIdSecretario(idPropiedad).get();
 
-        if(!phRepository.findIdAsamblea(idSecretario).isPresent())
-            return "No hay asamblea transcurriendo en este momento";
+        Optional<Integer> idAsamblea = phRepository.findIdAsamblea(idSecretario);
+        if(!idAsamblea.isPresent())
+            return 3;//"No hay asamblea transcurriendo en este momento"
 
-        Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
-
-
-        Optional<LocalDateTime> horaLlegada = phRepository.propietarioHoraLlegada(idAsamblea, idPersona);
-        Optional<LocalDateTime> horaSalida = phRepository.propietarioHoraSalida(idAsamblea, idPersona);
+        Optional<LocalDateTime> horaLlegada = phRepository.propietarioHoraLlegada(idAsamblea.get(), idPersona);
+        Optional<LocalDateTime> horaSalida = phRepository.propietarioHoraSalida(idAsamblea.get(), idPersona);
 
         if(horaLlegada.isPresent() && horaSalida.isPresent())
-            return "El propietario ya se encuentra registrado en la asamblea.";
+            return 1; //Previamente registrado
 
         LocalDateTime llegada = LocalDateTime.now();
-        phRepository.saveAsistente(idAsamblea, idPersona, "PROPIETARIO", llegada, llegada);
+        phRepository.saveAsistente(idAsamblea.get(), idPersona, "PROPIETARIO", llegada, llegada);
 
-        return "Propietario registrado correctamente.";
+        return 2;//"Propietario registrado correctamente."
     }
 
     public String registrarAbandono(Integer idPersona, Integer idPropiedad){
