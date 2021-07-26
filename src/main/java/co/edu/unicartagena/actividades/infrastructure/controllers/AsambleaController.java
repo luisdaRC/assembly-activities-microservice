@@ -102,7 +102,7 @@ public class AsambleaController {
             model.put("existeMocion", exist);
             return ResponseEntity.ok().body(model);
         }catch(Exception e){
-            return ResponseEntity.ok().body("Ha ocurrido un error al obtener el quorum. "+e.getMessage());
+            return ResponseEntity.ok().body("Ha ocurrido un error al consultar si existe una moción. "+e.getMessage());
         }
     }
 

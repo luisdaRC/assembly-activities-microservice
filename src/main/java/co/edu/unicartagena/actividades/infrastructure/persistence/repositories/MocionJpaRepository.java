@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface MocionJpaRespository extends JpaRepository<Mocion,Integer>, MocionRepository {
+public interface MocionJpaRepository extends JpaRepository<Mocion,Integer>, MocionRepository {
 
     Optional<List<Mocion>> findByIdAsamblea(Integer idAsamblea);
 }

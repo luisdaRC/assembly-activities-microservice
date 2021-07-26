@@ -20,27 +20,28 @@ public class AsambleaService {
     MocionRepository mocionRepository;
     ResultadoRepository resultadoRepository;
     VotoRepository votoRepository;
+    AsistenteRepository asistenteRepository;
 
     public AsambleaService(PersonaRepository personaRepository,
                           PropiedadHorizontalRepository phRepository,
                            OpcionRepository opcionRepository,
                            MocionRepository mocionRepository,
                            ResultadoRepository resultadoRepository,
-                           VotoRepository votoRepository){
+                           VotoRepository votoRepository,
+                           AsistenteRepository asistenteRepository){
         this.personaRepository = personaRepository;
         this.phRepository = phRepository;
         this.opcionRepository = opcionRepository;
         this.mocionRepository = mocionRepository;
         this.resultadoRepository = resultadoRepository;
         this.votoRepository = votoRepository;
+        this.asistenteRepository = asistenteRepository;
     }
 
     public Integer terminarAsamblea(String idPropiedad){
 
             Integer idSecretario = phRepository.findIdSecretario(Integer.parseInt(idPropiedad)).get();
-
             Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
-
             Optional<List<Integer>> idsAsistentes = personaRepository.findAllAsistentesByIdAsamblea(idAsamblea);
 
             for (Integer idPersona : idsAsistentes.get()) {
@@ -57,19 +58,44 @@ public class AsambleaService {
         Integer idSecretario = phRepository.findIdSecretario(Integer.parseInt(idPropiedad)).get();
         Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
         Optional<List<Integer>> idsAsistentes = personaRepository.findAllAsistentesByIdAsamblea(idAsamblea);
+        Optional<List<Asistente>> listaAsistentes = asistenteRepository.findByIdAsamblea(idAsamblea);
 
-        if(idsAsistentes.isPresent()){
-            toReturn.add(String.valueOf(idsAsistentes.get().size()));
-            for(Integer idPersona : idsAsistentes.get())
-                coeficientesAsistentes += personaRepository.findCoeficienteByIdBienPrivado(idPersona);
+        if(listaAsistentes.isPresent()){
+            toReturn.add(String.valueOf(listaAsistentes.get().size()));
+            for(Asistente asistente: listaAsistentes.get()){
+                if(asistente.getIdPersona() > 0){// Si es propietario
+                    coeficientesAsistentes += personaRepository.findCoeficienteByIdBienPrivado(asistente.getIdPersona());
+                }else{// Si es delegado
+                    coeficientesAsistentes += personaRepository.findCoeficienteByIdBienPrivado(asistente.getIdRepresentado());
+                }
+            }
         }else{
             toReturn.add(String.valueOf(0));
-        }
+        } //Hacer la validacion de los coeficientes aqui
 
+        // Regarding result. Put an eye on how are being saved coeficientesPorOpcion
         Float totalCoeficientes = phRepository.findTotalCoeficiente(Integer.parseInt(idPropiedad));
         Integer totalPropietarios = phRepository.findTotalPropietarios(Integer.parseInt(idPropiedad));
-        toReturn.add(String.valueOf(totalPropietarios-Integer.parseInt(toReturn.get(0))));
-        toReturn.add(String.valueOf(coeficientesAsistentes/totalCoeficientes*100));
+
+        // If the totalCoeficientes!=totalPropietarios
+        // it means that values for coeficientes are not by default and therefore is mandatory to evaluate
+        // If totalCoeficiente is 100%. If it's not, then an assembly couldn't be initiated.
+
+        if(totalCoeficientes.intValue() == totalPropietarios){
+            //Propietarios tienen coef. como 1 (default)
+            toReturn.add(String.valueOf(totalPropietarios-Integer.parseInt(toReturn.get(0))));//Ausentes
+            toReturn.add(String.valueOf(coeficientesAsistentes/totalCoeficientes*100));//Quorum
+
+        }else if(totalCoeficientes == 100){
+            //Los coeficientes están correctamente seteados
+            toReturn.add(String.valueOf(totalPropietarios-Integer.parseInt(toReturn.get(0))));//Ausentes
+            toReturn.add(String.valueOf(100-coeficientesAsistentes));//Quorum
+
+        }else{
+            //NO se puede iniciar la asamblea debido a que los coeficientes no están registrados correctamente
+            toReturn.add(String.valueOf(totalPropietarios));//Ausentes todos
+            toReturn.add(String.valueOf(-1));//Quorum negativo
+        }
 
         System.out.println(toReturn);
         return toReturn;
@@ -81,7 +107,14 @@ public class AsambleaService {
         Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
 
         if(phRepository.mocionActiva(idAsamblea).isPresent())
-            throw new BusinessException("Hay una moción activa en este momento en la asamblea.");
+            return "2";//Hay una moción activa actualmente
+
+        Float totalCoeficientes = phRepository.findTotalCoeficiente(idPropiedad);
+        Integer totalPropietarios = phRepository.findTotalPropietarios(idPropiedad);
+
+        if(totalCoeficientes.intValue() != totalPropietarios || totalCoeficientes != 100){
+            return "3";//Los coeficientes de copropiedad no están debidamente registrados
+        }
 
         // Agregar estado en el front, como cuando se quiere registrar secretario/revisor en administrador
 
@@ -91,7 +124,7 @@ public class AsambleaService {
         for(String prop: proposiciones)
             phRepository.saveOpciones(idMocion, prop);
 
-        return "1";
+        return "1";//Alright. Proposition saved.
     }
 
     public Boolean getExisteMocion(Integer idPropiedad){
@@ -195,56 +228,65 @@ public class AsambleaService {
     public Integer registerVote(Integer idPersona, String eleccion){
     //Entero para retornar distintos estados (propietario moroso, error con la bd, voto exitoso)
 
-       // try {
-            Integer idPropiedad = personaRepository.findIdPropiedadByIdPersona(idPersona);
-            // Voy a asumir que las restricciones ya están registradas.
-            Optional<String> restricciones = phRepository.findRestrictionByIdPH(idPropiedad);
+        Integer idPropiedad = personaRepository.findIdPropiedadByIdPersona(idPersona);
+        Optional<Integer> idSecretario = phRepository.findIdSecretario(idPropiedad);
+        Optional<Integer> idAsamblea = phRepository.findIdAsamblea(idSecretario.get());
 
-            if (restricciones.isPresent()) {
-                //Verificar el tipo de la moción activa
-                Optional<Integer> idSecretario = phRepository.findIdSecretario(idPropiedad);
-                Optional<Integer> idAsamblea = phRepository.findIdAsamblea(idSecretario.get());
-                Optional<Integer> idMocion = phRepository.mocionActiva(idAsamblea.get());
-                Optional<Integer> votado = phRepository.votoPropietario(idPersona, idMocion.get());
-                if(votado.isPresent())
-                    return 3;
+        //Verificar que el votante esté en asamblea
+        Optional<List<Asistente>> listaAsistentes = asistenteRepository.findByIdAsamblea(idAsamblea.get());
+        Boolean propietarioPresente = false;
 
-                Optional<String> tipoMocion = phRepository.findTipoMocionActiva(idAsamblea.get());
-                Persona persona = personaRepository.findPersonaById(idPersona);
-                if (persona.getMoroso() && restricciones.get().equals("TODAS"))
-                    return 0;//Hay una restricción que le impide votar
-                if(tipoMocion.isPresent())
-                    if (restricciones.get().contains(tipoMocion.get()) && persona.getMoroso())
-                        return 0;
-
-                List<Opcion> opciones = opcionRepository.findByIdMocion(idMocion.get());
-                for (Opcion op : opciones)
-                    if (op.getDescripcion().equals(eleccion)) {
-                        personaRepository.doVote(idMocion.get(), op.getIdOpcion(), idPersona);
-                        break;
-                    }
-                return 1; //Voto exitoso
-
-            } else {
-                //Guardar voto
-                Optional<Integer> idSecretario = phRepository.findIdSecretario(idPropiedad);
-                Optional<Integer> idAsamblea = phRepository.findIdAsamblea(idSecretario.get());
-                Optional<Integer> idMocion = phRepository.mocionActiva(idAsamblea.get());
-                Optional<Integer> votado = phRepository.votoPropietario(idPersona, idMocion.get());
-                if(votado.isPresent())
-                    return 3;
-                List<Opcion> opciones = opcionRepository.findByIdMocion(idMocion.get());
-                for (Opcion op : opciones)
-                    if (op.getDescripcion().equals(eleccion)) {
-                        personaRepository.doVote(idMocion.get(), op.getIdOpcion(), idPersona);
-                        break;
-                    }
-                return 1; //Voto exitoso
+        for(Asistente asistente: listaAsistentes.get()){
+            if(asistente.getIdPersona() == idPersona || asistente.getIdRepresentado() == idPersona){
+                propietarioPresente = true;
+                break;
             }
-    /*    }catch (Exception e){
-            System.out.println("Excepción en método votar. "+e.getMessage());
-            return 2;//Error al intentar registrar el voto. Consulte con su administrador.
-        }*/
+        }
+
+        if(!propietarioPresente)
+            return 2;//El propietario no está presente en la asamblea
+
+        // Voy a asumir que las restricciones ya están registradas.
+        Optional<String> restricciones = phRepository.findRestrictionByIdPH(idPropiedad);
+
+        if (restricciones.isPresent()) {
+            //Verificar el tipo de la moción activa
+            Optional<Integer> idMocion = phRepository.mocionActiva(idAsamblea.get());
+            Optional<Integer> votado = phRepository.votoPropietario(idPersona, idMocion.get());
+            if(votado.isPresent())
+                return 3;//El propietario ya ha votado
+
+            Optional<String> tipoMocion = phRepository.findTipoMocionActiva(idAsamblea.get());
+            Persona persona = personaRepository.findPersonaById(idPersona);
+            if (persona.getMoroso() && restricciones.get().equals("TODAS"))
+                return 0;//Hay una restricción que le impide votar
+            if(tipoMocion.isPresent())
+                if (restricciones.get().contains(tipoMocion.get()) && persona.getMoroso())
+                    return 0;
+
+            List<Opcion> opciones = opcionRepository.findByIdMocion(idMocion.get());
+            for (Opcion op : opciones)
+                if (op.getDescripcion().equals(eleccion)) {
+                    personaRepository.doVote(idMocion.get(), op.getIdOpcion(), idPersona);
+                    break;
+                }
+            return 1; //Voto exitoso
+
+        } else {
+            //Guardar voto
+            Optional<Integer> idMocion = phRepository.mocionActiva(idAsamblea.get());
+            Optional<Integer> votado = phRepository.votoPropietario(idPersona, idMocion.get());
+            if(votado.isPresent())
+                return 3;
+            List<Opcion> opciones = opcionRepository.findByIdMocion(idMocion.get());
+            for (Opcion op : opciones)
+                if (op.getDescripcion().equals(eleccion)) {
+                    personaRepository.doVote(idMocion.get(), op.getIdOpcion(), idPersona);
+                    break;
+                }
+            return 1; //Voto exitoso
+        }
+
     }
 
     public Map<Object, Object> resultadosSecretario(Integer idPropiedad){
@@ -340,18 +382,33 @@ public class AsambleaService {
                 return 0;
             }
 
-            Optional<Persona> existeDelegado = personaRepository.
-                    findByTipoDocumentoAndNumeroDocumento(tipo, numero);
+            Float totalCoeficientes = phRepository.findTotalCoeficiente(idPropiedad);
+            Integer totalPropietarios = phRepository.findTotalPropietarios(idPropiedad);
+
+            if(totalCoeficientes.intValue() != totalPropietarios || totalCoeficientes != 100){
+                return 4;//Los coeficientes de copropiedad no están debidamente registrados
+            }
+
             Integer idSecretario = phRepository.findIdSecretario(idPropiedad).get();
             Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
 
+            Optional<LocalDateTime> horaLlegada = phRepository.propietarioHoraLlegada(idAsamblea, existePropietario.get().getIdPersona());
+            Optional<LocalDateTime> horaSalida = phRepository.propietarioHoraSalida(idAsamblea, existePropietario.get().getIdPersona());
+
+            if(horaLlegada.isPresent() && horaSalida.isPresent())
+                return 3; //Propietario ya está registrado como asistente
+
+            Optional<Persona> existeDelegado = personaRepository.
+                    findByTipoDocumentoAndNumeroDocumento(tipo, numero);
+
+            // Si es propietario
             if (existeDelegado.isPresent()) {
                 LocalDateTime llegada = LocalDateTime.now();
 
                 personaRepository.saveDelegadoAsistente(idAsamblea, existeDelegado.get().getIdPersona(),
                         existePropietario.get().getIdPersona(), rol, llegada, llegada);
                 return 1;
-            } else {
+            } else { //Si no es propietario
                 int id = ThreadLocalRandom.current().nextInt(-2147483640, 0);
                 personaRepository.saveDataDelegado(id, existePropietario.get().getIdBienPrivado(),tipo, numero, nombres, apellidos, rol, false);
 

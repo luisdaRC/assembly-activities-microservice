@@ -3,6 +3,7 @@ package co.edu.unicartagena.actividades.domain.services;
 import co.edu.unicartagena.actividades.domain.entities.Asistente;
 import co.edu.unicartagena.actividades.domain.entities.Persona;
 import co.edu.unicartagena.actividades.domain.exceptions.BusinessException;
+import co.edu.unicartagena.actividades.domain.repositories.AsistenteRepository;
 import co.edu.unicartagena.actividades.domain.repositories.PersonaRepository;
 import co.edu.unicartagena.actividades.domain.repositories.PropiedadHorizontalRepository;
 import org.springframework.stereotype.Service;
@@ -17,10 +18,13 @@ public class PersonaService {
 
     PersonaRepository personaRepository;
     PropiedadHorizontalRepository phRepository;
+    AsistenteRepository asistenteRepository;
 
     public PersonaService(PersonaRepository personaRepository,
-                          PropiedadHorizontalRepository phRepository){
+                          PropiedadHorizontalRepository phRepository,
+                          AsistenteRepository asistenteRepository){
         this.personaRepository = personaRepository;
+        this.asistenteRepository = asistenteRepository;
         this.phRepository = phRepository;
     }
 
@@ -38,7 +42,7 @@ public class PersonaService {
             throw new BusinessException("La propiedad indicada no existe");
 
         if(!phRepository.findIdSecretario(Integer.parseInt(idPropiedad)).isPresent())
-            throw new BusinessException("El secretario indicada no existe");
+            throw new BusinessException("El secretario indicado no existe");
 
         Integer idSecretario = phRepository.findIdSecretario(Integer.parseInt(idPropiedad)).get();
 
@@ -47,12 +51,16 @@ public class PersonaService {
 
         Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
 
-        Optional<List<Integer>> listIdPersona = personaRepository.findAsistenteByIdAsamblea(idAsamblea);
+        Optional<List<Asistente>> listaAsistentes = asistenteRepository.findByIdAsamblea(idAsamblea);
         List<Persona> asistentes = new ArrayList<>();
 
-        if(listIdPersona.isPresent()){
-            for (Integer id:listIdPersona.get()){
-                asistentes.add(personaRepository.findPersonaById(id));
+        if(listaAsistentes.isPresent()){
+            for(Asistente asistente: listaAsistentes.get()){
+                if(asistente.getIdPersona() <= 0){
+                    asistentes.add(personaRepository.findPersonaById(asistente.getIdRepresentado()));
+                } else {
+                    asistentes.add(personaRepository.findPersonaById(asistente.getIdPersona()));
+                }
             }
         } else
             throw new BusinessException("No hay personas presentes en la asamblea");
@@ -68,11 +76,26 @@ public class PersonaService {
         if(!idAsamblea.isPresent())
             return 3;//"No hay asamblea transcurriendo en este momento"
 
+        Float totalCoeficientes = phRepository.findTotalCoeficiente(idPropiedad);
+        Integer totalPropietarios = phRepository.findTotalPropietarios(idPropiedad);
+
+        if(totalCoeficientes.intValue() != totalPropietarios || totalCoeficientes != 100){
+            return 5;//Los coeficientes de copropiedad no están debidamente registrados
+        }
+
         Optional<LocalDateTime> horaLlegada = phRepository.propietarioHoraLlegada(idAsamblea.get(), idPersona);
         Optional<LocalDateTime> horaSalida = phRepository.propietarioHoraSalida(idAsamblea.get(), idPersona);
 
         if(horaLlegada.isPresent() && horaSalida.isPresent())
             return 1; //Previamente registrado
+
+        Optional<List<Asistente>> listaAsistentes = asistenteRepository.findByIdAsamblea(idAsamblea.get());
+
+        if (listaAsistentes.isPresent())
+            for (Asistente asistente: listaAsistentes.get()){
+                if (asistente.getIdRepresentado() == idPersona)
+                    return 4; //El propietario esta siendo representado por un delegado
+            }
 
         LocalDateTime llegada = LocalDateTime.now();
         phRepository.saveAsistente(idAsamblea.get(), idPersona, "PROPIETARIO", llegada, llegada);
