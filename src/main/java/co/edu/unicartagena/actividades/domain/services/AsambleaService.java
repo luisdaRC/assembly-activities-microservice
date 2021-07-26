@@ -1,7 +1,6 @@
 package co.edu.unicartagena.actividades.domain.services;
 
 import co.edu.unicartagena.actividades.domain.entities.*;
-import co.edu.unicartagena.actividades.domain.exceptions.BusinessException;
 import co.edu.unicartagena.actividades.domain.repositories.*;
 import org.springframework.stereotype.Service;
 
@@ -71,9 +70,8 @@ public class AsambleaService {
             }
         }else{
             toReturn.add(String.valueOf(0));
-        } //Hacer la validacion de los coeficientes aqui
+        }
 
-        // Regarding result. Put an eye on how are being saved coeficientesPorOpcion
         Float totalCoeficientes = phRepository.findTotalCoeficiente(Integer.parseInt(idPropiedad));
         Integer totalPropietarios = phRepository.findTotalPropietarios(Integer.parseInt(idPropiedad));
 
@@ -81,15 +79,10 @@ public class AsambleaService {
         // it means that values for coeficientes are not by default and therefore is mandatory to evaluate
         // If totalCoeficiente is 100%. If it's not, then an assembly couldn't be initiated.
 
-        if(totalCoeficientes.intValue() == totalPropietarios){
-            //Propietarios tienen coef. como 1 (default)
+        if(totalCoeficientes.intValue() == totalPropietarios || totalCoeficientes == 100){
+            //Propietarios tienen coef. como 1 (default) o su suma es 100%
             toReturn.add(String.valueOf(totalPropietarios-Integer.parseInt(toReturn.get(0))));//Ausentes
             toReturn.add(String.valueOf(coeficientesAsistentes/totalCoeficientes*100));//Quorum
-
-        }else if(totalCoeficientes == 100){
-            //Los coeficientes están correctamente seteados
-            toReturn.add(String.valueOf(totalPropietarios-Integer.parseInt(toReturn.get(0))));//Ausentes
-            toReturn.add(String.valueOf(100-coeficientesAsistentes));//Quorum
 
         }else{
             //NO se puede iniciar la asamblea debido a que los coeficientes no están registrados correctamente
@@ -168,10 +161,14 @@ public class AsambleaService {
 
         for(Integer key: idsOpciones){
             List<Integer> idsPersonas = new LinkedList<>();
+            //Lista de los ids de personas que votaron por la opción contenida en key
             idsPersonas = votosPorOpcion.get(key);
             Float coeficientesPersonas = Float.valueOf(0);
 
             for(Integer idPersona: idsPersonas){
+                //Simplemente suma 1(unos) o cualquier otro valor (hasta 50)
+                //Se asume que los coeficientes han sido seteados correctamente en este punto,
+                //dado que hay validaciones suficientes para determinarlo y corregirlo con anterioridad
                 coeficientesPersonas += personaRepository.findCoeficienteByIdBienPrivado(idPersona);
             }
             coeficientesPorOpcion.put(key, coeficientesPersonas);
