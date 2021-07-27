@@ -53,7 +53,7 @@ public class AsambleaService {
 
     public List<String> getQuorum(String idPropiedad){
         List<String> toReturn = new ArrayList<>();
-        Float coeficientesAsistentes = Float.valueOf(0);
+        Float coeficientesAsistentes = 0f;
         Integer idSecretario = phRepository.findIdSecretario(Integer.parseInt(idPropiedad)).get();
         Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
         Optional<List<Integer>> idsAsistentes = personaRepository.findAllAsistentesByIdAsamblea(idAsamblea);
@@ -105,7 +105,7 @@ public class AsambleaService {
         Float totalCoeficientes = phRepository.findTotalCoeficiente(idPropiedad);
         Integer totalPropietarios = phRepository.findTotalPropietarios(idPropiedad);
 
-        if(totalCoeficientes.intValue() != totalPropietarios || totalCoeficientes != 100){
+        if((totalCoeficientes.intValue() != totalPropietarios && totalCoeficientes < 100f) || totalCoeficientes > 100f){
             return "3";//Los coeficientes de copropiedad no están debidamente registrados
         }
 
@@ -163,7 +163,7 @@ public class AsambleaService {
             List<Integer> idsPersonas = new LinkedList<>();
             //Lista de los ids de personas que votaron por la opción contenida en key
             idsPersonas = votosPorOpcion.get(key);
-            Float coeficientesPersonas = Float.valueOf(0);
+            Float coeficientesPersonas = 0f;
 
             for(Integer idPersona: idsPersonas){
                 //Simplemente suma 1(unos) o cualquier otro valor (hasta 50)
@@ -355,7 +355,7 @@ public class AsambleaService {
 
         //Getting coeficientes by option
         opciones = Arrays.asList(resultado.get().getCoeficientesPorOpcion().split(","));
-        Float total = Float.valueOf(0);
+        Float total = 0f;
         for (String coeficientes: opciones){
             total += Float.parseFloat(coeficientes);
         }
@@ -382,7 +382,7 @@ public class AsambleaService {
             Float totalCoeficientes = phRepository.findTotalCoeficiente(idPropiedad);
             Integer totalPropietarios = phRepository.findTotalPropietarios(idPropiedad);
 
-            if(totalCoeficientes.intValue() != totalPropietarios || totalCoeficientes != 100){
+            if((totalCoeficientes.intValue() != totalPropietarios && totalCoeficientes < 100f) || totalCoeficientes > 100f){
                 return 4;//Los coeficientes de copropiedad no están debidamente registrados
             }
 

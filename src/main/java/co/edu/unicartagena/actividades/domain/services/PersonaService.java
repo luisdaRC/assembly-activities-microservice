@@ -79,7 +79,7 @@ public class PersonaService {
         Float totalCoeficientes = phRepository.findTotalCoeficiente(idPropiedad);
         Integer totalPropietarios = phRepository.findTotalPropietarios(idPropiedad);
 
-        if(totalCoeficientes.intValue() != totalPropietarios || totalCoeficientes != 100){
+        if((totalCoeficientes.intValue() != totalPropietarios && totalCoeficientes < 100f) || totalCoeficientes > 100f){
             return 5;//Los coeficientes de copropiedad no están debidamente registrados
         }
 
