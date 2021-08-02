@@ -26,6 +26,15 @@ public interface PHJpaRepository extends JpaRepository<PropiedadHorizontal,Integ
     @Query(value = "SELECT idasamblea FROM asamblea WHERE personalapoyo_idpa = :idSecretario AND fechainicio = fechafin", nativeQuery = true)
     Optional<Integer> findIdAsamblea(@Param("idSecretario") Integer idSecretario);
 
+    @Query(value = "SELECT idasamblea FROM asamblea WHERE fechainicio = " +
+            "(SELECT MAX(fechainicio) FROM asamblea WHERE personalapoyo_idpa = :idSecretario)", nativeQuery = true)
+    Optional<Integer> findIdAsamblea2(@Param("idSecretario") Integer idSecretario);
+
+    @Modifying
+    @Query(value = "UPDATE asamblea SET fechafin = :fechaFin WHERE idasamblea = :idAsamblea", nativeQuery = true)
+    Integer finalizarAsamblea(@Param("idAsamblea") Integer idAsamblea,
+                              @Param("fechaFin") LocalDateTime fechaFin);
+
     @Query(value = "SELECT horallegada FROM asistente WHERE persona_idpersona = :idPersona AND asamblea_idasamblea = :idAsamblea", nativeQuery = true)
     Optional<LocalDateTime> propietarioHoraLlegada(@Param("idAsamblea") Integer idAsamblea, @Param("idPersona") Integer idPersona);
 
@@ -91,4 +100,10 @@ public interface PHJpaRepository extends JpaRepository<PropiedadHorizontal,Integ
 
     @Query(value = "SELECT idvoto FROM voto WHERE persona_idpersona = :idPersona AND mocion_idmocion = :idMocion", nativeQuery = true)
     Optional<Integer> votoPropietario(@Param("idPersona") Integer idPersona, @Param("idMocion") Integer idMocion);
+
+    @Query(value = "SELECT fechainicio FROM asamblea where idasamblea = :idAsamblea", nativeQuery = true)
+    Optional<LocalDateTime> findInicioAsambleaById(@Param("idAsamblea") Integer idAsamblea);
+
+    @Query(value = "SELECT fechafin FROM asamblea where idasamblea = :idAsamblea", nativeQuery = true)
+    Optional<LocalDateTime> findFinAsambleaById(@Param("idAsamblea") Integer idAsamblea);
 }

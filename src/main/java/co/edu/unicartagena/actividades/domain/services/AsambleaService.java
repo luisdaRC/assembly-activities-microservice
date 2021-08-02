@@ -39,16 +39,47 @@ public class AsambleaService {
 
     public Integer terminarAsamblea(String idPropiedad){
 
-            Integer idSecretario = phRepository.findIdSecretario(Integer.parseInt(idPropiedad)).get();
-            Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
-            Optional<List<Integer>> idsAsistentes = personaRepository.findAllAsistentesByIdAsamblea(idAsamblea);
+        Integer idSecretario = phRepository.findIdSecretario(Integer.parseInt(idPropiedad)).get();
+        Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
+        Optional<LocalDateTime> inicioAsamblea = phRepository.findInicioAsambleaById(idAsamblea);
+        Optional<LocalDateTime> finAsamblea = phRepository.findFinAsambleaById(idAsamblea);
 
-            for (Integer idPersona : idsAsistentes.get()) {
-                LocalDateTime horaSalida = LocalDateTime.now();
-                personaRepository.registrarAbandono(idPersona, idAsamblea, horaSalida);
-            }
+        if(!inicioAsamblea.get().equals(finAsamblea.get())){
+            System.out.println(inicioAsamblea.get());
+            System.out.println(finAsamblea.get());
+            return 0;
+        }
 
-        return 1;
+        Optional<List<Integer>> idsAsistentes = personaRepository.findAllAsistentesByIdAsamblea(idAsamblea);
+
+        for (Integer idPersona : idsAsistentes.get()) {
+             LocalDateTime horaSalida = LocalDateTime.now();
+             personaRepository.registrarAbandono(idPersona, idAsamblea, horaSalida);
+        }
+        LocalDateTime fechaFin = LocalDateTime.now();
+        phRepository.finalizarAsamblea(idAsamblea, fechaFin);
+
+        return 1;// Asamblea terminada
+    }
+
+    public Integer asambleaActiva(Integer idPropiedad){
+        Optional<Integer> idSecretario = phRepository.findIdSecretario(idPropiedad);
+        Optional<Integer> idAsamblea;
+        if(idSecretario.isPresent())
+            idAsamblea = phRepository.findIdAsamblea(idSecretario.get());
+        else return 0;
+
+        Optional<LocalDateTime> inicioAsamblea;
+        Optional<LocalDateTime> finAsamblea;
+        if(idAsamblea.isPresent()){
+            inicioAsamblea = phRepository.findInicioAsambleaById(idAsamblea.get());
+            finAsamblea = phRepository.findFinAsambleaById(idAsamblea.get());
+        }else return 0;
+
+        System.out.println(inicioAsamblea.get() + " : " + finAsamblea.get());
+
+        if(inicioAsamblea.get().equals(finAsamblea.get())) return 1; //Hay asamblea activa
+        else return 0; //Si Tienen diferentes fechas, ha terminado la asamblea
     }
 
     public List<String> getQuorum(String idPropiedad){
@@ -288,13 +319,13 @@ public class AsambleaService {
 
     public Map<Object, Object> resultadosSecretario(Integer idPropiedad){
         Integer idSecretario = phRepository.findIdSecretario(idPropiedad).get();
-        Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
+        Integer idAsamblea = phRepository.findIdAsamblea2(idSecretario).get();
         return getAllResults(idAsamblea, 0);
     }
 
     public List<Map<Object, Object>> resultadosRevisor(Integer idPropiedad){
         Integer idSecretario = phRepository.findIdSecretario(idPropiedad).get();
-        Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
+        Integer idAsamblea = phRepository.findIdAsamblea2(idSecretario).get();
         Optional<List<Mocion>> currentMociones = mocionRepository.findByIdAsamblea(idAsamblea);
         System.out.println(currentMociones);
         List<Map<Object, Object>> allResults = new LinkedList<>();
@@ -310,6 +341,13 @@ public class AsambleaService {
 
     public Map<Object, Object> resultadosPropietario(Integer idPersona){
         Optional<Integer> idAsamblea = phRepository.findIdAsambleaByIdPersona(idPersona);
+        if(!idAsamblea.isPresent()){
+            Map<Object, Object> model = new HashMap<>();
+            model.put("ausente", true);
+            model.put("esPlancha", false);
+            model.put("message", "El propietario no se encuentra participando en la asamblea");
+            return model;
+        }
         return getAllResults(idAsamblea.get(), 0);
     }
 
@@ -317,8 +355,14 @@ public class AsambleaService {
         String titulo = "";
         if (ultimoId == 0){
             Optional<List<Mocion>> currentMociones = mocionRepository.findByIdAsamblea(idAsamblea);
-
-            if (!currentMociones.isPresent()) {
+            //Looks a bit absurd but isPresent value was retrieving weird results, so to have more security
+            if(currentMociones.isPresent()) {
+                if (currentMociones.get().size() == 0) {
+                    Map<Object, Object> model = new HashMap<>();
+                    model.put("hayMocion", false);
+                    return model;
+                }
+            }else{
                 Map<Object, Object> model = new HashMap<>();
                 model.put("hayMocion", false);
                 return model;

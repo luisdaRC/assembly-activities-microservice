@@ -30,6 +30,7 @@ public class AsambleaController {
     GetVotationPropietarioCommand getVotationPropietarioCommand;
     GetAllResultadosCommand getAllResultadosCommand;
     RegistrarPoderCedidoCommand registrarPoderCedidoCommand;
+    AsambleaActivaCommand asambleaActivaCommand;
 
     @Autowired
     AsambleaController(TerminarAsambleaCommand terminarAsambleaCommand,
@@ -43,7 +44,8 @@ public class AsambleaController {
                        VerificarCandidatoCommand verificarCandidatoCommand,
                        GetVotationPropietarioCommand getVotationPropietarioCommand,
                        GetAllResultadosCommand getAllResultadosCommand,
-                       RegistrarPoderCedidoCommand registrarPoderCedidoCommand){
+                       RegistrarPoderCedidoCommand registrarPoderCedidoCommand,
+                       AsambleaActivaCommand asambleaActivaCommand){
         this.terminarAsambleaCommand = terminarAsambleaCommand;
         this.getQuorumCommand = getQuorumCommand;
         this.registrarProposicionCommand = registrarProposicionCommand;
@@ -56,6 +58,7 @@ public class AsambleaController {
         this.getVotationPropietarioCommand = getVotationPropietarioCommand;
         this.getAllResultadosCommand = getAllResultadosCommand;
         this.registrarPoderCedidoCommand = registrarPoderCedidoCommand;
+        this.asambleaActivaCommand = asambleaActivaCommand;
     }
 
     @GetMapping(value="terminar", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -67,6 +70,13 @@ public class AsambleaController {
         }catch(Exception e){
             return ResponseEntity.ok().body("Ha ocurrido un error al terminar la asamblea. "+e.getMessage());
         }
+    }
+
+    @GetMapping(value="activa", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> asambleaActiva(
+            @RequestParam(name = "idPropiedadHorizontal") String idPropiedad){
+            return ResponseEntity.ok().body(asambleaActivaCommand.ejecutar(idPropiedad));
+
     }
 
     @GetMapping(value="quorum", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -147,40 +157,40 @@ public class AsambleaController {
     @GetMapping(value="obtener/votacion", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> getLastVotation(
             @RequestParam(name = "idPropiedadHorizontal") String idPropiedadHorizontal){
-        try {
+        //try {
             Map<Object, Object> model = new HashMap<>();
             model = getLastVotationCommand.ejecutar(idPropiedadHorizontal);
             System.out.println(model);
             return ResponseEntity.ok().body(model);
-        }catch(Exception e){
+        /*}catch(Exception e){
             return ResponseEntity.ok().body("Ha ocurrido un error al obtener mociones. "+e.getMessage());
-        }
+        }*/
     }
 
     @GetMapping(value="results/revisor", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> getAllResultados(
             @RequestParam(name = "idPropiedadHorizontal") String idPropiedadHorizontal){
-        try {
+        //try {
             List<Map<Object, Object>> model = new LinkedList<>();
             model = getAllResultadosCommand.ejecutar(idPropiedadHorizontal);
             System.out.println(model);
             return ResponseEntity.ok().body(model);
-        }catch(Exception e){
-            return ResponseEntity.ok().body("Ha ocurrido un error al obtener mociones. "+e.getMessage());
-        }
+        /*}catch(Exception e){
+            return ResponseEntity.ok().body("Ha ocurrido un error al obtener resultados. "+e.getMessage());
+        }*/
     }
 
     @GetMapping(value="results/votacion", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> getVotationPropietario(
             @RequestParam(name = "idPersona") String idPersona){
-        try {
+        //try {
             Map<Object, Object> model = new HashMap<>();
             model = getVotationPropietarioCommand.ejecutar(idPersona);
             System.out.println(model);
             return ResponseEntity.ok().body(model);
-        }catch(Exception e){
-            return ResponseEntity.ok().body("Ha ocurrido un error al obtener mociones. "+e.getMessage());
-        }
+        /*}catch(Exception e){
+            return ResponseEntity.ok().body("Ha ocurrido un error al obtener votaciones. "+e.getMessage());
+        }*/
     }
 
     @PostMapping(value="verificarCandidato", produces = MediaType.APPLICATION_JSON_VALUE)
