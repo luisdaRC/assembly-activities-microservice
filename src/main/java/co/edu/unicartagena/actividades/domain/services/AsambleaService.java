@@ -327,14 +327,14 @@ public class AsambleaService {
         Integer idSecretario = phRepository.findIdSecretario(idPropiedad).get();
         Integer idAsamblea = phRepository.findIdAsamblea2(idSecretario).get();
         Optional<List<Mocion>> currentMociones = mocionRepository.findByIdAsamblea(idAsamblea);
-        System.out.println(currentMociones);
+        //System.out.println(currentMociones);
         List<Map<Object, Object>> allResults = new LinkedList<>();
         for(Mocion mocion: currentMociones.get()){
             Map<Object, Object> model;
             model = getAllResults(idAsamblea, mocion.getIdMocion());
             model.put("titulo", mocion.getDescripcionMocion());
             allResults.add(model);
-            System.out.println(allResults);
+            //System.out.println(allResults);
         }
         return allResults;
     }
