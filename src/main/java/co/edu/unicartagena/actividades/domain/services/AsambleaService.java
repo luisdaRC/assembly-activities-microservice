@@ -110,7 +110,7 @@ public class AsambleaService {
         // it means that values for coeficientes are not by default and therefore is mandatory to evaluate
         // If totalCoeficiente is 100%. If it's not, then an assembly couldn't be initiated.
 
-        if(totalCoeficientes.intValue() == totalPropietarios || totalCoeficientes == 100){
+        if(totalCoeficientes.intValue() == totalPropietarios || totalCoeficientes.intValue() == 100){
             //Propietarios tienen coef. como 1 (default) o su suma es 100%
             toReturn.add(String.valueOf(totalPropietarios-Integer.parseInt(toReturn.get(0))));//Ausentes
             toReturn.add(String.valueOf(coeficientesAsistentes/totalCoeficientes*100));//Quorum
@@ -136,7 +136,7 @@ public class AsambleaService {
         Float totalCoeficientes = phRepository.findTotalCoeficiente(idPropiedad);
         Integer totalPropietarios = phRepository.findTotalPropietarios(idPropiedad);
 
-        if((totalCoeficientes.intValue() != totalPropietarios && totalCoeficientes < 100f) || totalCoeficientes > 100f){
+        if(totalCoeficientes.intValue() != totalPropietarios && totalCoeficientes.intValue() != 100){
             return "3";//Los coeficientes de copropiedad no están debidamente registrados
         }
 
@@ -426,7 +426,7 @@ public class AsambleaService {
             Float totalCoeficientes = phRepository.findTotalCoeficiente(idPropiedad);
             Integer totalPropietarios = phRepository.findTotalPropietarios(idPropiedad);
 
-            if((totalCoeficientes.intValue() != totalPropietarios && totalCoeficientes < 100f) || totalCoeficientes > 100f){
+            if(totalCoeficientes.intValue() != totalPropietarios && totalCoeficientes.intValue() != 100){
                 return 4;//Los coeficientes de copropiedad no están debidamente registrados
             }
 
