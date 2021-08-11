@@ -148,7 +148,7 @@ public class AsambleaService {
         for(String prop: proposiciones)
             phRepository.saveOpciones(idMocion, prop);
 
-        return "1";//Alright. Proposition saved.
+        return "1";//Alright, Proposition saved.
     }
 
     public Boolean getExisteMocion(Integer idPropiedad){
