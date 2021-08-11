@@ -59,7 +59,7 @@ public class AsambleaService {
         LocalDateTime fechaFin = LocalDateTime.now();
         phRepository.finalizarAsamblea(idAsamblea, fechaFin);
 
-        return 1;// Asamblea terminada
+        return 1;// Asamblea terminada.
     }
 
     public Integer asambleaActiva(Integer idPropiedad){
