@@ -210,6 +210,12 @@ public class AsambleaController {
             @RequestBody DesignadoDTO designadoDTO, HttpServletRequest request){
 
         System.out.println("IP?: " + request.getRemoteAddr());
+        //Si sirveeeeeeee con el post, crear la columna en la db (ALTER TABLE..)
+        //Y crear el mensaje en el inicio pa que los usuario tengan presente qué es lo que pasa con sus datos
+        //Obviamente está aquí por motivos de test rápido y se debe pasar a la función registrarVoto de este controller.
+
+
+
         return ResponseEntity.ok().body(request.getRemoteAddr());
         //return ResponseEntity.ok().body(registrarPoderCedidoCommand.ejecutar(designadoDTO));
     }
