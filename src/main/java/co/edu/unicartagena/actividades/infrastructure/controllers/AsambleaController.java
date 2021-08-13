@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -206,9 +207,11 @@ public class AsambleaController {
 
     @PostMapping(value="poder", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> registrarPoderCedido(
-            @RequestBody DesignadoDTO designadoDTO){
+            @RequestBody DesignadoDTO designadoDTO, HttpServletRequest request){
 
-        return ResponseEntity.ok().body(registrarPoderCedidoCommand.ejecutar(designadoDTO));
+        System.out.println("IP?: " + request.getRemoteAddr());
+        return ResponseEntity.ok().body(request.getRemoteAddr());
+        //return ResponseEntity.ok().body(registrarPoderCedidoCommand.ejecutar(designadoDTO));
     }
 
 }
