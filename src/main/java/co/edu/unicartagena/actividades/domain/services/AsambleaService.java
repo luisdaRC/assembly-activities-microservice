@@ -253,7 +253,7 @@ public class AsambleaService {
         return model;
     }
 
-    public Integer registerVote(Integer idPersona, String eleccion){
+    public Integer registerVote(Integer idPersona, String eleccion, String ipDirection){
     //Entero para retornar distintos estados (propietario moroso, error con la bd, voto exitoso)
 
         Integer idPropiedad = personaRepository.findIdPropiedadByIdPersona(idPersona);
@@ -295,7 +295,7 @@ public class AsambleaService {
             List<Opcion> opciones = opcionRepository.findByIdMocion(idMocion.get());
             for (Opcion op : opciones)
                 if (op.getDescripcion().equals(eleccion)) {
-                    personaRepository.doVote(idMocion.get(), op.getIdOpcion(), idPersona);
+                    personaRepository.doVote(idMocion.get(), op.getIdOpcion(), idPersona, ipDirection);
                     break;
                 }
             return 1; //Voto exitoso
@@ -309,7 +309,7 @@ public class AsambleaService {
             List<Opcion> opciones = opcionRepository.findByIdMocion(idMocion.get());
             for (Opcion op : opciones)
                 if (op.getDescripcion().equals(eleccion)) {
-                    personaRepository.doVote(idMocion.get(), op.getIdOpcion(), idPersona);
+                    personaRepository.doVote(idMocion.get(), op.getIdOpcion(), idPersona, ipDirection);
                     break;
                 }
             return 1; //Voto exitoso

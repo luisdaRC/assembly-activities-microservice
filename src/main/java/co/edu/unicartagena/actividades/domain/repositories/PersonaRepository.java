@@ -15,7 +15,7 @@ public interface PersonaRepository {
     Integer registrarAbandono(Integer idPersona, Integer idAsamblea, LocalDateTime horaSalida);
     Float findCoeficienteByIdBienPrivado(Integer idPersona);
     Integer findIdPropiedadByIdPersona(Integer idPersona);
-    Integer doVote(Integer idMocion, Integer idOpcion, Integer idPersona);
+    Integer doVote(Integer idMocion, Integer idOpcion, Integer idPersona, String ipDirection);
     Optional<Persona> findByTipoDocumentoAndNumeroDocumento(String tipoDoc, String numDoc);
     Integer saveDataDelegado(Integer id, Integer idBienPrivado, String tipo, String  numero, String  nombres, String  apellidos, String rol, Boolean moroso);
     Integer saveDelegadoAsistente(Integer idAsamblea, Integer idDelegado, Integer idRepresentado, String rol, LocalDateTime llegada, LocalDateTime salida);

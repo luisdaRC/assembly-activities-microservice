@@ -15,4 +15,5 @@ public class Voto {
     private Integer idMocion;
     private Integer idOpcion;
     private Integer idPersona;
+    private String ipDirection;
 }

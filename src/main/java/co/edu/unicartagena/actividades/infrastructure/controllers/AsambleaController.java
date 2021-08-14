@@ -146,10 +146,14 @@ public class AsambleaController {
 
     @PostMapping(value="voto", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> registrarVoto(
-            @RequestBody VotoDTO voto){
+            @RequestBody VotoDTO voto, HttpServletRequest request){
 
         //try {
-            return ResponseEntity.ok().body(registrarVotoCommand.ejecutar(voto));
+            List options = new LinkedList<String>();
+            options.add(voto.getIdPersona().toString());
+            options.add(voto.getEleccion());
+            options.add(request.getRemoteAddr());
+            return ResponseEntity.ok().body(registrarVotoCommand.ejecutar(options));
         //}catch(Exception e){
            // return ResponseEntity.ok().body("Ha ocurrido un error al registrar el voto. "+e.getMessage());
         //}
@@ -207,9 +211,9 @@ public class AsambleaController {
 
     @PostMapping(value="poder", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> registrarPoderCedido(
-            @RequestBody DesignadoDTO designadoDTO, HttpServletRequest request){
+            @RequestBody DesignadoDTO designadoDTO){
 
-        System.out.println("IP?: " + request.getRemoteAddr());
+        //System.out.println("IP?: " + request.getRemoteAddr());
         //Si sirveeeeeeee con el post, crear la columna en la db (ALTER TABLE..)
         //Y crear el mensaje en el inicio pa que los usuario tengan presente qué es lo que pasa con sus datos
         //Obviamente está aquí por motivos de test rápido y se debe pasar a la función registrarVoto de este controller.

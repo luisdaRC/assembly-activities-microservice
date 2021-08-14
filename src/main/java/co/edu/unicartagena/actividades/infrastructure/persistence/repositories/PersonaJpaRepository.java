@@ -52,9 +52,9 @@ public interface PersonaJpaRepository extends JpaRepository<Persona,Integer>, Pe
     Float findCoeficienteByIdBienPrivado(@Param("idPersona") Integer idPersona);
 
     @Modifying
-    @Query(value = "INSERT INTO voto VALUES (DEFAULT, :idMocion, :idOpcion, :idPersona)", nativeQuery = true)
+    @Query(value = "INSERT INTO voto VALUES (DEFAULT, :idMocion, :idOpcion, :idPersona, :ipDirection)", nativeQuery = true)
     @Transactional
-    Integer doVote(@Param("idMocion") Integer idMocion, @Param("idOpcion") Integer idOpcion, @Param("idPersona") Integer idPersona);
+    Integer doVote(@Param("idMocion") Integer idMocion, @Param("idOpcion") Integer idOpcion, @Param("idPersona") Integer idPersona, @Param("ipDirection") String ipDirection);
 
     Optional<Persona> findByTipoDocumentoAndNumeroDocumento(String tipoDoc, String numDoc);
     Persona save(Persona persona);

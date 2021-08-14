@@ -27,6 +27,10 @@
             <basic name="idPersona">
                 <column name="persona_idpersona"/>
             </basic>
+
+            <basic name="ipDirection">
+                <column name="direccion_ip"/>
+            </basic>
         </attributes>
     </entity>
 </entity-mappings>
