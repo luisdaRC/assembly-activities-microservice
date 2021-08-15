@@ -42,7 +42,7 @@ public interface PHJpaRepository extends JpaRepository<PropiedadHorizontal,Integ
     Optional<LocalDateTime> propietarioHoraSalida(@Param("idAsamblea") Integer idAsamblea, @Param("idPersona") Integer idPersona);
 
     @Modifying
-    @Query(value = "INSERT INTO asistente VALUES (DEFAULT, :idAsamblea, :idPersona, 0, :rol, :horaLlegada, :horaSalida)", nativeQuery = true)
+    @Query(value = "INSERT INTO asistente VALUES (DEFAULT, :idAsamblea, :idPersona, :rol, :horaLlegada, :horaSalida, 0)", nativeQuery = true)
     @Transactional
     Optional<Integer> saveAsistente(@Param("idAsamblea") Integer idAsamblea, @Param("idPersona") Integer idPersona,
                             @Param("rol") String rol, @Param("horaLlegada") LocalDateTime horaLlegada,

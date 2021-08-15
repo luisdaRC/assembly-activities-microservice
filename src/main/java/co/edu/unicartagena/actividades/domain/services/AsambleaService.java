@@ -286,12 +286,14 @@ public class AsambleaService {
 
             Optional<String> tipoMocion = phRepository.findTipoMocionActiva(idAsamblea.get());
             Persona persona = personaRepository.findPersonaById(idPersona);
-            if (persona.getMoroso() && restricciones.get().equals("TODAS"))
-                return 0;//Hay una restricción que le impide votar
-            if(tipoMocion.isPresent())
-                if (restricciones.get().contains(tipoMocion.get()) && persona.getMoroso())
-                    return 0;
 
+            if (persona.getMoroso() != null) {
+                if (persona.getMoroso() && restricciones.get().equals("TODAS"))
+                    return 0;//Hay una restricción que le impide votar
+                if (tipoMocion.isPresent())
+                    if (restricciones.get().contains(tipoMocion.get()) && persona.getMoroso())
+                        return 0;
+            }
             List<Opcion> opciones = opcionRepository.findByIdMocion(idMocion.get());
             for (Opcion op : opciones)
                 if (op.getDescripcion().equals(eleccion)) {
@@ -305,7 +307,7 @@ public class AsambleaService {
             Optional<Integer> idMocion = phRepository.mocionActiva(idAsamblea.get());
             Optional<Integer> votado = phRepository.votoPropietario(idPersona, idMocion.get());
             if(votado.isPresent())
-                return 3;
+                return 3; // Verifica si el propietario ya ha votado.
             List<Opcion> opciones = opcionRepository.findByIdMocion(idMocion.get());
             for (Opcion op : opciones)
                 if (op.getDescripcion().equals(eleccion)) {
@@ -332,7 +334,7 @@ public class AsambleaService {
         for(Mocion mocion: currentMociones.get()){
             Map<Object, Object> model;
             model = getAllResults(idAsamblea, mocion.getIdMocion());
-            model.put("titulo", mocion.getDescripcionMocion());
+            model.put("idMocion", mocion.getIdMocion());
             allResults.add(model);
             //System.out.println(allResults);
         }
@@ -353,6 +355,7 @@ public class AsambleaService {
 
     public Map<Object, Object> getAllResults(Integer idAsamblea, Integer ultimoId) {
         String titulo = "";
+        // Validación de ultimoId == 0 es para secretario
         if (ultimoId == 0){
             Optional<List<Mocion>> currentMociones = mocionRepository.findByIdAsamblea(idAsamblea);
             //Looks a bit absurd but isPresent value was retrieving weird results, so to have more security
