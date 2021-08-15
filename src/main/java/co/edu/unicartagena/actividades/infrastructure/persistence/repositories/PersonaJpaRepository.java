@@ -49,7 +49,7 @@ public interface PersonaJpaRepository extends JpaRepository<Persona,Integer>, Pe
 
     @Query(value = "SELECT coeficientecopropiedad FROM bienprivado WHERE idbienprivado = " +
             "(SELECT bienprivado_idbienprivado FROM persona WHERE idpersona = :idPersona)", nativeQuery = true)
-    Float findCoeficienteByIdBienPrivado(@Param("idPersona") Integer idPersona);
+    Float findCoeficienteByIdPersona(@Param("idPersona") Integer idPersona);
 
     @Modifying
     @Query(value = "INSERT INTO voto VALUES (DEFAULT, :idMocion, :idOpcion, :idPersona, :ipDirection)", nativeQuery = true)

@@ -12,4 +12,5 @@ import java.util.Optional;
 public interface MocionJpaRepository extends JpaRepository<Mocion,Integer>, MocionRepository {
 
     Optional<List<Mocion>> findByIdAsamblea(Integer idAsamblea);
+    Mocion findByIdMocion(Integer idMocion);
 }

@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface MocionRepository {
 
     Optional<List<Mocion>> findByIdAsamblea(Integer idAsamblea);
+    Mocion findByIdMocion(Integer idMocion);
 }

@@ -94,9 +94,9 @@ public class AsambleaService {
             toReturn.add(String.valueOf(listaAsistentes.get().size()));
             for(Asistente asistente: listaAsistentes.get()){
                 if(asistente.getIdPersona() > 0){// Si es propietario
-                    coeficientesAsistentes += personaRepository.findCoeficienteByIdBienPrivado(asistente.getIdPersona());
+                    coeficientesAsistentes += personaRepository.findCoeficienteByIdPersona(asistente.getIdPersona());
                 }else{// Si es delegado
-                    coeficientesAsistentes += personaRepository.findCoeficienteByIdBienPrivado(asistente.getIdRepresentado());
+                    coeficientesAsistentes += personaRepository.findCoeficienteByIdPersona(asistente.getIdRepresentado());
                 }
             }
         }else{
@@ -200,7 +200,7 @@ public class AsambleaService {
                 //Simplemente suma 1(unos) o cualquier otro valor (hasta 50)
                 //Se asume que los coeficientes han sido seteados correctamente en este punto,
                 //dado que hay validaciones suficientes para determinarlo y corregirlo con anterioridad
-                coeficientesPersonas += personaRepository.findCoeficienteByIdBienPrivado(idPersona);
+                coeficientesPersonas += personaRepository.findCoeficienteByIdPersona(idPersona);
             }
             coeficientesPorOpcion.put(key, coeficientesPersonas);
             personasPorOpcion.put(key, votosPorOpcion.get(key).size());
@@ -317,6 +317,39 @@ public class AsambleaService {
             return 1; //Voto exitoso
         }
 
+    }
+
+    public Map<Object, Object> resultadosDetalladosRevisor(String idMocion){
+        System.out.println("Just to see it it arrives" + idMocion);
+        Map<Object, Object> model = new HashMap<>();
+        Mocion mocion = mocionRepository.findByIdMocion(Integer.parseInt(idMocion));
+        model.put("tituloMocion", mocion.getDescripcionMocion());
+
+        Optional<List<Voto>> votos = votoRepository.findByIdMocion(Integer.parseInt(idMocion));
+        List<ResultadoDetallado> allResultados = new LinkedList<>();
+
+        for (Voto voto: votos.get()) {
+            ResultadoDetallado resultadoDetallado = new ResultadoDetallado();
+            resultadoDetallado.setDireccionIp(voto.getIpDirection());
+
+            Persona persona = personaRepository.findPersonaById(voto.getIdPersona());
+            resultadoDetallado.setNombres(persona.getNombres() + " " + persona.getApellidos());
+            resultadoDetallado.setDocumento(persona.getTipoDocumento() + " " + persona.getNumeroDocumento());
+
+            Float coeficiente = personaRepository.findCoeficienteByIdPersona(persona.getIdPersona());
+            resultadoDetallado.setCoeficiente(String.valueOf(coeficiente));
+
+            List<Opcion> opciones = opcionRepository.findByIdMocion(Integer.parseInt(idMocion));
+            for (Opcion opcion : opciones) {
+                if (voto.getIdOpcion().equals(opcion.getIdOpcion())) {
+                    resultadoDetallado.setEleccion(opcion.getDescripcion());
+                    break;
+                }
+            }
+            allResultados.add(resultadoDetallado);
+        }
+        model.put("resultados", allResultados);
+        return model;
     }
 
     public Map<Object, Object> resultadosSecretario(Integer idPropiedad){

@@ -13,7 +13,7 @@ public interface PersonaRepository {
     Optional<List<Integer>> findAllAsistentesByIdAsamblea(Integer idAsamblea);
     Persona findPersonaById(Integer idPersona);
     Integer registrarAbandono(Integer idPersona, Integer idAsamblea, LocalDateTime horaSalida);
-    Float findCoeficienteByIdBienPrivado(Integer idPersona);
+    Float findCoeficienteByIdPersona(Integer idPersona);
     Integer findIdPropiedadByIdPersona(Integer idPersona);
     Integer doVote(Integer idMocion, Integer idOpcion, Integer idPersona, String ipDirection);
     Optional<Persona> findByTipoDocumentoAndNumeroDocumento(String tipoDoc, String numDoc);

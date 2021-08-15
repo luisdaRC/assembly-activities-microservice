@@ -32,6 +32,7 @@ public class AsambleaController {
     GetAllResultadosCommand getAllResultadosCommand;
     RegistrarPoderCedidoCommand registrarPoderCedidoCommand;
     AsambleaActivaCommand asambleaActivaCommand;
+    GetDetailedResultsRevisorCommand getDetailedResultsRevisorCommand;
 
     @Autowired
     AsambleaController(TerminarAsambleaCommand terminarAsambleaCommand,
@@ -46,7 +47,8 @@ public class AsambleaController {
                        GetVotationPropietarioCommand getVotationPropietarioCommand,
                        GetAllResultadosCommand getAllResultadosCommand,
                        RegistrarPoderCedidoCommand registrarPoderCedidoCommand,
-                       AsambleaActivaCommand asambleaActivaCommand){
+                       AsambleaActivaCommand asambleaActivaCommand,
+                       GetDetailedResultsRevisorCommand getDetailedResultsRevisorCommand){
         this.terminarAsambleaCommand = terminarAsambleaCommand;
         this.getQuorumCommand = getQuorumCommand;
         this.registrarProposicionCommand = registrarProposicionCommand;
@@ -60,6 +62,7 @@ public class AsambleaController {
         this.getAllResultadosCommand = getAllResultadosCommand;
         this.registrarPoderCedidoCommand = registrarPoderCedidoCommand;
         this.asambleaActivaCommand = asambleaActivaCommand;
+        this.getDetailedResultsRevisorCommand = getDetailedResultsRevisorCommand;
     }
 
     @GetMapping(value="terminar", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -121,14 +124,10 @@ public class AsambleaController {
     public ResponseEntity<Object> detenerVotacion(
             @RequestParam(name = "idPropiedadHorizontal") String idPropiedad){
 
-        //try {
-            Integer value = detenerVotacionCommand.ejecutar(idPropiedad);
-            Map<Object, Object> model = new HashMap<>();
-            model.put("result", value);
-            return ResponseEntity.ok().body(model);
-        /*}catch(Exception e){
-            return ResponseEntity.ok().body("Ha ocurrido un error al obtener el quorum. "+e.getMessage());
-        }*/
+        Integer value = detenerVotacionCommand.ejecutar(idPropiedad);
+        Map<Object, Object> model = new HashMap<>();
+        model.put("result", value);
+        return ResponseEntity.ok().body(model);
     }
 
     @GetMapping(value="mocionPropietario", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -148,54 +147,47 @@ public class AsambleaController {
     public ResponseEntity<Object> registrarVoto(
             @RequestBody VotoDTO voto, HttpServletRequest request){
 
-        //try {
             List options = new LinkedList<String>();
             options.add(voto.getIdPersona().toString());
             options.add(voto.getEleccion());
             options.add(request.getRemoteAddr());
             return ResponseEntity.ok().body(registrarVotoCommand.ejecutar(options));
-        //}catch(Exception e){
-           // return ResponseEntity.ok().body("Ha ocurrido un error al registrar el voto. "+e.getMessage());
-        //}
     }
 
     @GetMapping(value="obtener/votacion", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> getLastVotation(
             @RequestParam(name = "idPropiedadHorizontal") String idPropiedadHorizontal){
-        //try {
-            Map<Object, Object> model = new HashMap<>();
-            model = getLastVotationCommand.ejecutar(idPropiedadHorizontal);
-            System.out.println(model);
-            return ResponseEntity.ok().body(model);
-        /*}catch(Exception e){
-            return ResponseEntity.ok().body("Ha ocurrido un error al obtener mociones. "+e.getMessage());
-        }*/
+
+        Map<Object, Object> model = new HashMap<>();
+        model = getLastVotationCommand.ejecutar(idPropiedadHorizontal);
+        System.out.println(model);
+        return ResponseEntity.ok().body(model);
     }
 
     @GetMapping(value="results/revisor", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> getAllResultados(
             @RequestParam(name = "idPropiedadHorizontal") String idPropiedadHorizontal){
-        //try {
+
             List<Map<Object, Object>> model = new LinkedList<>();
             model = getAllResultadosCommand.ejecutar(idPropiedadHorizontal);
             System.out.println(model);
             return ResponseEntity.ok().body(model);
-        /*}catch(Exception e){
-            return ResponseEntity.ok().body("Ha ocurrido un error al obtener resultados. "+e.getMessage());
-        }*/
+    }
+
+    @GetMapping(value="results/detailed/revisor", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> getDetailedResultsRevisor(
+            @RequestParam(name = "idMocion") String idMocion){
+
+        return ResponseEntity.ok().body(getDetailedResultsRevisorCommand.ejecutar(idMocion));
     }
 
     @GetMapping(value="results/votacion", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> getVotationPropietario(
             @RequestParam(name = "idPersona") String idPersona){
-        //try {
             Map<Object, Object> model = new HashMap<>();
             model = getVotationPropietarioCommand.ejecutar(idPersona);
             System.out.println(model);
             return ResponseEntity.ok().body(model);
-        /*}catch(Exception e){
-            return ResponseEntity.ok().body("Ha ocurrido un error al obtener votaciones. "+e.getMessage());
-        }*/
     }
 
     @PostMapping(value="verificarCandidato", produces = MediaType.APPLICATION_JSON_VALUE)
