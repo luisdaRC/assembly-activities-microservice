@@ -193,12 +193,7 @@ public class AsambleaController {
     @PostMapping(value="verificarCandidato", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> verificarCandidato(
             @RequestBody DocumentoDTO documentoDTO){
-
-        try {
         return ResponseEntity.ok().body(verificarCandidatoCommand.ejecutar(documentoDTO));
-        }catch(Exception e){
-         return ResponseEntity.ok().body("Ha ocurrido un error al registrar el voto. "+e.getMessage());
-        }
     }
 
     @PostMapping(value="poder", produces = MediaType.APPLICATION_JSON_VALUE)

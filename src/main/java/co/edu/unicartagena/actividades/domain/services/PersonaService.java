@@ -114,9 +114,10 @@ public class PersonaService {
     public Map<Object, Object> verificarCandidato(String numDoc, String tipoDoc){
         Optional<Persona> persona = personaRepository.findByTipoDocumentoAndNumeroDocumento(numDoc, tipoDoc);
         Map<Object, Object> model = new HashMap<>();
+        System.out.println(persona);
         if (!persona.isPresent()){
             model.put("id", 0);
-        } else if (persona.get().getMoroso()){
+        } else if (persona.get().getMoroso() != null && persona.get().getMoroso()){
             model.put("id", 1);
             model.put("nombre", persona.get().getNombres() + " " + persona.get().getApellidos());
         } else {

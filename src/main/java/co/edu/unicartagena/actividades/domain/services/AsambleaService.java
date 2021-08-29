@@ -355,7 +355,7 @@ public class AsambleaService {
     public Map<Object, Object> resultadosSecretario(Integer idPropiedad){
         Integer idSecretario = phRepository.findIdSecretario(idPropiedad).get();
         Integer idAsamblea = phRepository.findIdAsamblea2(idSecretario).get();
-        return getAllResults(idAsamblea, 0);
+        return getAllResults(idAsamblea, 0, false);
     }
 
     public List<Map<Object, Object>> resultadosRevisor(Integer idPropiedad){
@@ -366,7 +366,7 @@ public class AsambleaService {
         //Recorre las mociones de la presente asamblea
         for(Mocion mocion: currentMociones.get()){
             Map<Object, Object> model;
-            model = getAllResults(idAsamblea, mocion.getIdMocion());
+            model = getAllResults(idAsamblea, mocion.getIdMocion(), true);
             model.put("titulo", mocion.getDescripcionMocion());
             model.put("idMocion", mocion.getIdMocion());
             allResults.add(model);
@@ -384,10 +384,10 @@ public class AsambleaService {
             model.put("message", "El propietario no se encuentra participando en la asamblea");
             return model;
         }
-        return getAllResults(idAsamblea.get(), 0);
+        return getAllResults(idAsamblea.get(), 0, false);
     }
 
-    public Map<Object, Object> getAllResults(Integer idAsamblea, Integer ultimoId) {
+    public Map<Object, Object> getAllResults(Integer idAsamblea, Integer ultimoId, Boolean esApoyo) {
         String titulo = "";
         // Validación de ultimoId == 0 es para secretario
         if (ultimoId == 0){
@@ -423,8 +423,35 @@ public class AsambleaService {
         } else {
             model.put("esPlancha", false);
         }
-        opciones = Arrays.asList(resultado.get().getDescripcionesMociones().split("#CustmSpace#"));
         model.put("titulo", titulo);
+        // If the user requesting this info is personal apoyo(for revisor requests), then will be returned an JSON[]
+        if (esApoyo) {
+            List<String> descripciones = new ArrayList();
+            List<String> votosPorOpcion2 = new ArrayList();
+            List<String> coeficientesPorVoto2 = new ArrayList();
+            List<ResultadoSimple> allResultados = new LinkedList<>();
+
+            descripciones = Arrays.asList(resultado.get().getDescripcionesMociones().split("#CustmSpace#"));
+            votosPorOpcion2 = Arrays.asList(resultado.get().getPersonasPorOpcion().split(","));
+            coeficientesPorVoto2 = Arrays.asList(resultado.get().getCoeficientesPorOpcion().split(","));
+            Float total = 0f;
+            for (String coeficientes: coeficientesPorVoto2){
+                total += Float.parseFloat(coeficientes);
+            }
+
+            for (int i=0; i< descripciones.size(); i++) {
+                ResultadoSimple resultadoSimple = new ResultadoSimple();
+                resultadoSimple.setDescripcion(descripciones.get(i));
+                resultadoSimple.setNumeroVotos(Integer.parseInt(votosPorOpcion2.get(i)));
+
+                resultadoSimple.setCoeficientes(Float.parseFloat(coeficientesPorVoto2.get(i))/total*100);
+                allResultados.add(resultadoSimple);
+            }
+            model.put("resultados", allResultados);
+            return model;
+        }
+
+        opciones = Arrays.asList(resultado.get().getDescripcionesMociones().split("#CustmSpace#"));
         model.put("descripciones", opciones);
 
         //Getting votes by option from db
