@@ -307,7 +307,7 @@ public class AsambleaService {
             Optional<Integer> idMocion = phRepository.mocionActiva(idAsamblea.get());
             Optional<Integer> votado = phRepository.votoPropietario(idPersona, idMocion.get());
             if(votado.isPresent())
-                return 3; // Verifica si el propietario ya ha votado.
+                return 3; // Verifica si el propietario ya ha votado (ya votó).
             List<Opcion> opciones = opcionRepository.findByIdMocion(idMocion.get());
             for (Opcion op : opciones)
                 if (op.getDescripcion().equals(eleccion)) {
