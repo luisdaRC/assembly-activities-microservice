@@ -221,7 +221,7 @@ public class AsambleaService {
 
         phRepository.saveResultados(idMocion, listaDescripcionOpciones, listaCoeficientes, listaPersonasPorOpcion);
 
-        return 1;
+        return 1; //Votaciones detenidas y resultados guardados correctamente
     }
 
     public Map<Object, Object> getMocionPropietario(Integer idPersona){
