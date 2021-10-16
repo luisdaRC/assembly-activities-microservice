@@ -1,13 +1,16 @@
 package co.edu.unicartagena.actividades;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class ActividadesApplicationTests {
 
-    @Test
-    void contextLoads() {
+@SpringBootTest
+public class ActividadesApplicationTests {
+
+    @BeforeEach
+    public void setup() {
+
     }
+
 
 }

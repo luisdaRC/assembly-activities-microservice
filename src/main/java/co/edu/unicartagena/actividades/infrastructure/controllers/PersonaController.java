@@ -5,6 +5,7 @@ import co.edu.unicartagena.actividades.application.commands.persona.ObtenerPropi
 import co.edu.unicartagena.actividades.application.commands.persona.RegistrarAsistenteCommand;
 import co.edu.unicartagena.actividades.application.commands.persona.RegistrarAbandonoCommand;
 import co.edu.unicartagena.actividades.application.dtos.AsistenteDTO;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,7 @@ public class PersonaController {
         this.registrarAbandonoCommand = registrarAbandonoCommand;
     }
 
+    @Operation(summary = "Obtiene la lista de todos los propietarios de la propiedad horizontal")
     @GetMapping(value = "listar", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> listaPropietarios(
             @RequestParam(name = "idPropiedadHorizontal") String idPropiedad){
@@ -38,6 +40,7 @@ public class PersonaController {
         return ResponseEntity.ok().body(obtenerPropietariosCommand.ejecutar(idPropiedad));
     }
 
+    @Operation(summary = "Registra un nuevo propietario en la asamblea")
     @PostMapping(value="asistente", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> registrarAsistente(
             @RequestBody AsistenteDTO data){
@@ -49,6 +52,7 @@ public class PersonaController {
         }*/
     }
 
+    @Operation(summary = "Obtiene la lista de los asistentes de la asamblea")
     @GetMapping(value = "listarAsistentes", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> listaAsistentes(
             @RequestParam(name = "idPropiedadHorizontal") String idPropiedad){
@@ -61,6 +65,7 @@ public class PersonaController {
         }
     }
 
+    @Operation(summary = "Registra abandono de un asistente de la asamblea")
     @PostMapping(value="abandona", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> registrarAbandono(
             @RequestBody AsistenteDTO data){

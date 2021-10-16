@@ -32,6 +32,7 @@ dependencies {
     runtimeOnly 'org.springframework.boot:spring-boot-devtools'
 
     compile([group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.4'])
+    compile "org.springdoc:springdoc-openapi-ui:1.5.2"
     compileOnly 'org.projectlombok:lombok:1.18.10'
     annotationProcessor 'org.projectlombok:lombok:1.18.10'
 
@@ -41,6 +42,7 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+    testCompile 'junit:junit:4.12'
 }
 
 test {
