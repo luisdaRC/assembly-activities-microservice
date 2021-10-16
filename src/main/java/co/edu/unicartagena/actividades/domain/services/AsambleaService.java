@@ -418,6 +418,10 @@ public class AsambleaService {
         List<Integer> votosPorOpcion = new ArrayList();
         List<Float> coeficientesPorVoto = new ArrayList();
 
+        if(!resultado.isPresent()){
+            model.put("hayMocion", false);
+            return model;
+        }
         if(resultado.get().getDescripcionesMociones().startsWith("Plancha")){
             model.put("esPlancha", true);
         } else {
