@@ -7,14 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RegistrarAbandonoCommand implements Command<String, AsistenteDTO> {
+public class RegistrarAbandonoCommand implements Command<Integer, AsistenteDTO> {
 
     private final PersonaService personaService;
 
     @Autowired
     public RegistrarAbandonoCommand(PersonaService personaService){ this.personaService=personaService; }
 
-    public String ejecutar(AsistenteDTO asistenteDTO){
+    public Integer ejecutar(AsistenteDTO asistenteDTO){
         System.out.println("Ejecutando el comando: RegistrarAbandono con data: " + asistenteDTO);
         return personaService.registrarAbandono(asistenteDTO.getIdPersona(), asistenteDTO.getIdPropiedadHorizontal());
     }

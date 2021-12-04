@@ -33,7 +33,21 @@ public class PersonaService {
         if(!phRepository.findPHById(Integer.parseInt(idPropiedad)).isPresent())
             throw new BusinessException("La propiedad indicada no existe");
 
-        return personaRepository.findByIdPropiedadAndRol(Integer.parseInt(idPropiedad),"PROPIETARIO");
+        List<Persona> propietarios = personaRepository.findByIdPropiedadAndRol(Integer.parseInt(idPropiedad),"PROPIETARIO");
+        Integer idSecretario = phRepository.findIdSecretario(Integer.parseInt(idPropiedad)).get();
+        Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
+        Optional<List<Integer>> idsAsistentes = personaRepository.findAllAsistentesByIdAsamblea(idAsamblea);
+        if(idsAsistentes.get().size() == 0){
+            return propietarios;
+        } else {
+            List<Persona> ausentes = new LinkedList<>();
+            for(Persona propietario : propietarios) {
+                if (!idsAsistentes.get().contains(propietario.getIdPersona())) {
+                    ausentes.add(propietario);
+                }
+            }
+            return ausentes;
+        }
     }
 
     public List<Persona> obtenerAsistentes(String idPropiedad){
@@ -86,6 +100,7 @@ public class PersonaService {
         Optional<LocalDateTime> horaLlegada = phRepository.propietarioHoraLlegada(idAsamblea.get(), idPersona);
         Optional<LocalDateTime> horaSalida = phRepository.propietarioHoraSalida(idAsamblea.get(), idPersona);
 
+        //Aqui en lugar de retornar esto hacer un update al asistente y ponerle las horas de llegada y salida iguales
         if(horaLlegada.isPresent() && horaSalida.isPresent())
             return 1; //Previamente registrado
 
@@ -103,12 +118,12 @@ public class PersonaService {
         return 2;//"Propietario registrado correctamente."
     }
 
-    public String registrarAbandono(Integer idPersona, Integer idPropiedad){
+    public Integer registrarAbandono(Integer idPersona, Integer idPropiedad){
         Integer idSecretario = phRepository.findIdSecretario(idPropiedad).get();
         Integer idAsamblea = phRepository.findIdAsamblea(idSecretario).get();
         LocalDateTime horaSalida = LocalDateTime.now();
         personaRepository.registrarAbandono(idPersona, idAsamblea, horaSalida);
-        return "El propietario abandonó exitosamente la asamblea.";
+        return 1;// Asamblea abandonada con éxito
     }
 
     public Map<Object, Object> verificarCandidato(String numDoc, String tipoDoc){

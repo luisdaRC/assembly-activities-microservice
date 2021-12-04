@@ -130,12 +130,12 @@ public class AsambleaController {
     public ResponseEntity<Object> getQuorum(
             @RequestParam(name = "idPropiedadHorizontal") String idPropiedad){
 
-        try {
+        //try {
             // [0]asistentes:int, [1] ausentes:int, [2] quorum:float.
             return ResponseEntity.ok().body(getQuorumCommand.ejecutar(idPropiedad));
-        }catch(Exception e){
+        /*}catch(Exception e){
             return ResponseEntity.status(500).body("Ha ocurrido un error al obtener el quorum. "+e.getMessage());
-        }
+        }*/
     }
 
     @Operation(summary = "Recibe y guarda en la base de datos una proposición para una asamblea de la asamblea proporcionada")
