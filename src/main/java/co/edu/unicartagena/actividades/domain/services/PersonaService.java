@@ -97,12 +97,14 @@ public class PersonaService {
             return 5;//Los coeficientes de copropiedad no están debidamente registrados
         }
 
-        Optional<LocalDateTime> horaLlegada = phRepository.propietarioHoraLlegada(idAsamblea.get(), idPersona);
-        Optional<LocalDateTime> horaSalida = phRepository.propietarioHoraSalida(idAsamblea.get(), idPersona);
+        Optional<Asistente> existeAsistente = asistenteRepository.findByIdAsambleaAndIdPersona(idAsamblea.get(), idPersona);
 
-        //Aqui en lugar de retornar esto hacer un update al asistente y ponerle las horas de llegada y salida iguales
-        if(horaLlegada.isPresent() && horaSalida.isPresent())
-            return 1; //Previamente registrado
+        if(existeAsistente.isPresent()){
+            System.out.println("Line 103 of PersonaService" + existeAsistente.get());
+            LocalDateTime llegada = LocalDateTime.now();
+            asistenteRepository.updateLlegadaAndSalida(existeAsistente.get().getIdAsistente(), llegada);
+            return 1; //Propietario reingresado a la asamblea
+        }
 
         Optional<List<Asistente>> listaAsistentes = asistenteRepository.findByIdAsamblea(idAsamblea.get());
 
